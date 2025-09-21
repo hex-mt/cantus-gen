@@ -24,6 +24,7 @@ typedef struct {
     int bottom;
     int bar;
     bool repeated_climax;
+    bool disconnected_climax;
     int leaps_total; // leaps larger than a 2nd
     int leaps_large; // leaps larger than a 4th
     int leaps_in_row;
@@ -43,7 +44,8 @@ static inline bool bad_climax(int climax) {
 }
 
 static inline bool climax_good(State *state) {
-    return !state->repeated_climax && !bad_climax(state->top);
+    return !state->repeated_climax && !bad_climax(state->top) &&
+           !state->disconnected_climax;
 }
 
 static void print_cantus(void) {
@@ -100,6 +102,28 @@ static inline int get_next_note(State *state, int to_try) {
 }
 
 static inline bool same_sign(int x, int y) { return (x >= 0) ^ (y < 0); }
+
+static inline bool large_unrecovered_leap(State *state, int this_motion) {
+    return abs(state->prev_motion) > 4 &&
+           same_sign(state->prev_motion, this_motion);
+}
+
+static inline bool repeated_note(State *state, int this_note) {
+    return cantus[state->bar - 1] == this_note;
+}
+
+static inline bool climax_disconnected(State *state, int this_motion) {
+    return cantus[state->bar - 1] == state->top &&
+           abs(state->prev_motion) > 1 && abs(this_motion) > 1;
+}
+
+static inline bool dissonant_leap(int this_motion) {
+    return abs(this_motion) == 6;
+}
+
+static inline bool larger_than_octave(int this_motion) {
+    return abs(this_motion) > 7;
+}
 
 static inline bool tritone_between(int p, int q) {
     return ((p == MI || p == MI - 7) && (q == FA || q == FA - 7)) ||

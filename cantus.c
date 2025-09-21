@@ -20,6 +20,7 @@ int main(void) {
                            .bottom = 0,
                            .bar = 1,
                            .repeated_climax = false,
+                           .disconnected_climax = false,
                            .leaps_total = 0,
                            .leaps_large = 0,
                            .leaps_in_row = 0,
@@ -75,60 +76,61 @@ void try_note(State state) {
         if (in_cadence(&state) && i > 0)
             return;
 
-        int this_note;
-        if (in_cadence(&state)) {
-            this_note = cantus[state.bar];
-        } else
-            this_note = to_try[i];
-
+        int this_note = get_next_note(&state, to_try[i]);
         int prev_note = cantus[state.bar - 1];
 
-        int motion = this_note - prev_note;
+        int this_motion = this_note - prev_note;
+        // int prev_motion = state.prev_motion;
 
-        if (abs(state.prev_motion) > 5 && same_sign(state.prev_motion, motion))
+        if (large_unrecovered_leap(&state, this_motion))
             continue;
 
-        // climax must be connected by step on at least one side
-        if (prev_note == state.top && range == 10 &&
-            abs(state.prev_motion) > 1 && abs(motion) > 1)
+        if (climax_disconnected(&state, this_motion)) {
+            if (range == 10)
+                continue;
+            state.disconnected_climax = false;
+        }
+
+        if (repeated_note(&state, this_note))
             continue;
 
-        if (
-            // no repeated notes
-            prev_note == this_note ||
-            // or dissonant leaps
-            abs(motion) == 6 ||
-            // or leaps larger than an 8ve
-            abs(motion) > 7 ||
-            // no tritone leaps
-            tritone_between(prev_note, this_note))
+        if (dissonant_leap(this_motion))
+            continue;
+
+        if (larger_than_octave(this_motion))
+            continue;
+
+        if (tritone_between(prev_note, this_note))
             continue;
 
         int leaps_total =
-            abs(motion) > 1 ? state.leaps_total + 1 : state.leaps_total;
+            abs(this_motion) > 1 ? state.leaps_total + 1 : state.leaps_total;
         // stepwise motion should predominate
         if ((float)leaps_total > ((float)(BARS - 1) / 4))
             continue;
 
         int leaps_large =
-            abs(motion) > 3 ? state.leaps_large + 1 : state.leaps_large;
+            abs(this_motion) > 3 ? state.leaps_large + 1 : state.leaps_large;
         // no more than two large leaps per cantus
         if (leaps_large > 2)
             continue;
 
-        int leaps_in_row = abs(motion) > 1 ? state.leaps_in_row + 1 : 0;
+        int leaps_in_row = abs(this_motion) > 1 ? state.leaps_in_row + 1 : 0;
         // no more than two leaps in a row
         if (leaps_in_row > 2)
             continue;
 
-        if ((state.prev_motion == 2) && (motion == 4 || motion == 5))
+        if ((state.prev_motion == 2) && (this_motion == 4 || this_motion == 5))
             continue;
-        if ((state.prev_motion == 3) && (abs(motion) > 2 && motion != 4))
+        if ((state.prev_motion == 3) &&
+            (abs(this_motion) > 2 && this_motion != 4))
             continue;
 
-        if ((state.prev_motion == -2) && (motion == -4 || motion == -5))
+        if ((state.prev_motion == -2) &&
+            (this_motion == -4 || this_motion == -5))
             continue;
-        if ((state.prev_motion == -3) && (abs(motion) > 2 && motion != -4))
+        if ((state.prev_motion == -3) &&
+            (abs(this_motion) > 2 && this_motion != -4))
             continue;
 
         bool repeated;
@@ -139,6 +141,7 @@ void try_note(State state) {
                  (this_note == 3 && MODE == LYDIAN)))
                 continue;
             repeated = false;
+            state.disconnected_climax = false;
         } else if (this_note == state.top) {
             // skip if repeating a climactic note that cannot be exceeded.
             if (range == 10)
@@ -149,7 +152,7 @@ void try_note(State state) {
             repeated = state.repeated_climax;
 
         int since_turn, new_turn;
-        if (same_sign(state.prev_motion, motion)) {
+        if (same_sign(state.prev_motion, this_motion)) {
             // no excessive motion in a single direction
             if (state.since_turn == 3)
                 continue;
@@ -174,10 +177,11 @@ void try_note(State state) {
                          .bottom = min(state.bottom, this_note),
                          .bar = state.bar + 1,
                          .repeated_climax = repeated,
+                         .disconnected_climax = state.disconnected_climax,
                          .leaps_total = leaps_total,
                          .leaps_large = leaps_large,
                          .leaps_in_row = leaps_in_row,
-                         .prev_motion = motion,
+                         .prev_motion = this_motion,
                          .since_turn = since_turn,
                          .prev_turn = new_turn});
     }
