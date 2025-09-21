@@ -23,11 +23,14 @@ int main(void) {
     gettimeofday(&st, NULL);
 
     int steps[BARS - 1] = {0};
+    int leaps = 0;
     for (int i = 0; i < 10000; i++) {
         try_note(initial_state);
         for (int i = 0; i < BARS - 1; i++) {
             if (abs(cantus[i + 1] - cantus[i]) == 1)
                 steps[i]++;
+            else
+                leaps++;
         }
         success = false;
     }
@@ -40,6 +43,7 @@ int main(void) {
     for (int i = 0; i < BARS - 1; i++)
         printf("%d - %d: %f%% were steps\n", i, i + 1,
                (double)steps[i] / 100.0);
+    printf("average number of leaps per cantus: %f\n", (double)leaps / 10000);
 
     return EXIT_SUCCESS;
 }
@@ -101,6 +105,9 @@ void try_note(State state) {
         if (too_many_large_leaps(leaps_large))
             continue;
 
+        if (steps_past_arpeggio(&state, this_motion))
+            continue;
+
         int leaps_in_row = update_leaps_in_row(&state, this_motion);
         if (too_many_leaps_in_row(leaps_in_row))
             continue;
@@ -132,6 +139,9 @@ void try_note(State state) {
             since_turn = 1;
             new_turn = this_note;
         }
+
+        if (bad_cadence_approach(&state, this_motion))
+            continue;
 
         // add the prospective note to the cantus
         if (!in_cadence(&state))

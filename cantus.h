@@ -129,7 +129,7 @@ static inline int get_next_note(State *state, int to_try) {
 static inline bool same_sign(int x, int y) { return (x >= 0) ^ (y < 0); }
 
 static inline bool large_unrecovered_leap(State *state, int this_motion) {
-    return abs(state->prev_motion) > 4 &&
+    return abs(state->prev_motion) > 3 &&
            same_sign(state->prev_motion, this_motion);
 }
 
@@ -160,7 +160,7 @@ static inline int update_leaps_total(State *state, int this_motion) {
 }
 
 static inline bool too_many_leaps(int leaps_total) {
-    return (float)leaps_total > ((float)(BARS - 1) / 4);
+    return (float)leaps_total > ((double)(BARS) / 4);
 }
 
 static inline int update_leaps_large(State *state, int this_motion) {
@@ -169,6 +169,11 @@ static inline int update_leaps_large(State *state, int this_motion) {
 
 static inline bool too_many_large_leaps(int leaps_large) {
     return leaps_large > 2;
+}
+
+static inline bool steps_past_arpeggio(State *state, int this_motion) {
+    return state->leaps_in_row == 2 && state->since_turn > 1 &&
+           same_sign(state->prev_motion, this_motion);
 }
 
 static inline int update_leaps_in_row(State *state, int this_motion) {
@@ -182,13 +187,12 @@ static inline bool too_many_leaps_in_row(int leaps_in_row) {
 static inline bool bad_consecutive_leaps(State *state, int this_motion) {
     if ((state->prev_motion == 2) && (this_motion > 3))
         return true;
-    if ((state->prev_motion == 3) && (abs(this_motion) > 2 && this_motion != 4))
+    if ((state->prev_motion == 3) && (abs(this_motion) > 2))
         return true;
 
     if ((state->prev_motion == -2) && (this_motion < -3))
         return true;
-    if ((state->prev_motion == -3) &&
-        (abs(this_motion) > 2 && this_motion != -4))
+    if ((state->prev_motion == -3) && (abs(this_motion) > 2))
         return true;
 
     return false;
@@ -217,6 +221,12 @@ static inline bool dissonant_outline(State *state, int this_note) {
     if (outline == 6 || outline == 8)
         return true;
     if (tritone_between(state->prev_turn, this_note))
+        return true;
+    return false;
+}
+
+static inline bool bad_cadence_approach(State *state, int this_motion) {
+    if (state->bar == BARS - 2 && this_motion < -3)
         return true;
     return false;
 }
