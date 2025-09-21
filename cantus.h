@@ -27,34 +27,23 @@ typedef struct {
     int leaps_total; // leaps larger than a 2nd
     int leaps_large; // leaps larger than a 4th
     int leaps_in_row;
-    int prev_int;
+    int prev_motion;
     int prev_turn;
     int since_turn;
 } State;
 
 void try_note(State range);
 
-static inline void shuffle(int a[], int length) {
-    for (int i = 0; i < length; i++) {
-        int s = rand() % (length - i) + i;
-        int temp = a[i];
-        a[i] = a[s];
-        a[s] = temp;
-    }
+static inline bool cantus_complete(State *state) {
+    return state->bar == BARS - 1;
 }
 
 static inline bool bad_climax(int climax) {
     return climax == 6 && (MODE == MAJOR || MODE == LYDIAN);
 }
 
-static inline int create_range(const State *s, int *out) {
-    int top = s->bottom + 9;
-    if (bad_climax(top))
-        top--;
-    int bottom = s->top - 9;
-    int range = top + 1 - bottom;
-    memcpy(out, notes + bottom + 7, sizeof(out[0]) * range);
-    return range;
+static inline bool climax_good(State *state) {
+    return !state->repeated_climax && !bad_climax(state->top);
 }
 
 static void print_cantus(void) {
@@ -72,6 +61,49 @@ static void print_cantus(void) {
     }
     // printf("}\n");
     printf("\n");
+}
+
+static inline int create_range(const State *s, int *out) {
+    int top = s->bottom + 9;
+    if (bad_climax(top))
+        top--;
+    int bottom = s->top - 9;
+    int range = top + 1 - bottom;
+    int start = bottom + 7;
+    if (start < 0)
+        start = 0;
+    if (start + range > (int)(sizeof notes / sizeof notes[0]))
+        range = (sizeof notes / sizeof notes[0]) - start;
+
+    memcpy(out, notes + start, sizeof(out[0]) * range);
+
+    return range;
+}
+
+static inline void shuffle(int a[], int length) {
+    for (int i = 0; i < length; i++) {
+        int s = rand() % (length - i) + i;
+        int temp = a[i];
+        a[i] = a[s];
+        a[s] = temp;
+    }
+}
+
+static inline bool in_cadence(State *state) { return state->bar >= BARS - 2; }
+
+static inline int get_next_note(State *state, int to_try) {
+    if (in_cadence(state))
+        return cantus[state->bar];
+    else {
+        return to_try;
+    }
+}
+
+static inline bool same_sign(int x, int y) { return (x >= 0) ^ (y < 0); }
+
+static inline bool tritone_between(int p, int q) {
+    return ((p == MI || p == MI - 7) && (q == FA || q == FA - 7)) ||
+           ((p == FA || p == FA - 7) && (q == MI || q == MI - 7));
 }
 
 #endif

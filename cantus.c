@@ -23,7 +23,7 @@ int main(void) {
                            .leaps_total = 0,
                            .leaps_large = 0,
                            .leaps_in_row = 0,
-                           .prev_int = 0,
+                           .prev_motion = 0,
                            .prev_turn = 0,
                            .since_turn = 1};
 
@@ -54,59 +54,54 @@ int main(void) {
 }
 
 void try_note(State state) {
+    if (cantus_complete(&state)) {
+        if (climax_good(&state)) {
+            success = true;
+            print_cantus();
+            return;
+        }
+        return;
+    }
+
     // create shuffled array of notes to try
     int to_try[18];
     int range = create_range(&state, to_try);
     shuffle(to_try, range);
 
-    // if the cantus is complete...
-    if (state.bar == BARS - 1) {
-        // and it doesn't repeat the climax or climax on the leading tone...
-        if (!state.repeated_climax && !bad_climax(state.top)) {
-
-            // raise success flag and print the cantus
-            success = true;
-            print_cantus();
-            return;
-        }
-        // otherwise backtrack
-        return;
-    }
-
-    int prev_note = cantus[state.bar - 1];
-
-    // otherwise try out all the options recursively
+    // recursively try out each note in range
     for (int i = 0; i < range; i++) {
         if (success)
             return;
+        if (in_cadence(&state) && i > 0)
+            return;
 
-        int this_note = to_try[i];
-        if (state.bar < BARS - 2)
-            this_note = to_try[i];
-        else {
-            if (i > 0)
-                return;
+        int this_note;
+        if (in_cadence(&state)) {
             this_note = cantus[state.bar];
-        }
+        } else
+            this_note = to_try[i];
+
+        int prev_note = cantus[state.bar - 1];
 
         int motion = this_note - prev_note;
 
-        if (abs(state.prev_int) > 5 && ((state.prev_int > 0 && motion > 0) ||
-                                        (state.prev_int < 0 && motion < 0)))
+        if (abs(state.prev_motion) > 5 && same_sign(state.prev_motion, motion))
             continue;
 
         // climax must be connected by step on at least one side
-        if (prev_note == state.top && range == 10 && abs(state.prev_int) > 1 &&
-            abs(motion) > 1)
+        if (prev_note == state.top && range == 10 &&
+            abs(state.prev_motion) > 1 && abs(motion) > 1)
             continue;
 
-        // no repeated notes or dissonant leaps, or leaps larger than an 8ve
-        if (prev_note == this_note || abs(motion) == 6 || abs(motion) > 7 ||
+        if (
+            // no repeated notes
+            prev_note == this_note ||
+            // or dissonant leaps
+            abs(motion) == 6 ||
+            // or leaps larger than an 8ve
+            abs(motion) > 7 ||
             // no tritone leaps
-            ((prev_note == MI || prev_note == MI - 7) &&
-             (this_note == FA || this_note == FA - 7)) ||
-            ((prev_note == FA || prev_note == FA - 7) &&
-             (this_note == MI || this_note == MI - 7)))
+            tritone_between(prev_note, this_note))
             continue;
 
         int leaps_total =
@@ -126,14 +121,14 @@ void try_note(State state) {
         if (leaps_in_row > 2)
             continue;
 
-        if ((state.prev_int == 2) && (motion == 4 || motion == 5))
+        if ((state.prev_motion == 2) && (motion == 4 || motion == 5))
             continue;
-        if ((state.prev_int == 3) && (abs(motion) > 2 && motion != 4))
+        if ((state.prev_motion == 3) && (abs(motion) > 2 && motion != 4))
             continue;
 
-        if ((state.prev_int == -2) && (motion == -4 || motion == -5))
+        if ((state.prev_motion == -2) && (motion == -4 || motion == -5))
             continue;
-        if ((state.prev_int == -3) && (abs(motion) > 2 && motion != -4))
+        if ((state.prev_motion == -3) && (abs(motion) > 2 && motion != -4))
             continue;
 
         bool repeated;
@@ -154,8 +149,7 @@ void try_note(State state) {
             repeated = state.repeated_climax;
 
         int since_turn, new_turn;
-        if ((state.prev_int > 0 && motion > 0) ||
-            (state.prev_int < 0 && motion < 0)) {
+        if (same_sign(state.prev_motion, motion)) {
             // no excessive motion in a single direction
             if (state.since_turn == 3)
                 continue;
@@ -166,10 +160,7 @@ void try_note(State state) {
             if (outline == 6 || outline == 8)
                 continue;
             // no outlined tritones
-            if (((state.prev_turn == MI || state.prev_turn == MI - 7) &&
-                 (this_note == FA || this_note == FA - 7)) ||
-                ((state.prev_turn == FA || state.prev_turn == FA - 7) &&
-                 (this_note == MI || this_note == MI - 7)))
+            if (tritone_between(state.prev_turn, this_note))
                 continue;
             since_turn = 1;
             new_turn = this_note;
@@ -186,7 +177,7 @@ void try_note(State state) {
                          .leaps_total = leaps_total,
                          .leaps_large = leaps_large,
                          .leaps_in_row = leaps_in_row,
-                         .prev_int = motion,
+                         .prev_motion = motion,
                          .since_turn = since_turn,
                          .prev_turn = new_turn});
     }
