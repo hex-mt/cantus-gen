@@ -82,12 +82,37 @@ static inline int create_range(const State *s, int *out) {
     return range;
 }
 
-static inline void shuffle(int a[], int length) {
+static inline void shuffle(int a[], int length, State *state) {
     for (int i = 0; i < length; i++) {
         int s = rand() % (length - i) + i;
         int temp = a[i];
         a[i] = a[s];
         a[s] = temp;
+    }
+    // counteract bias towards "early spending" of leaps
+    // by strongly preferencing steps as first choices
+    int s = rand() % 5;
+    if (s > 1) {
+        for (int i = 0; i < length; i++) {
+            if (i == 0 && abs(a[i] - cantus[state->bar - 1]) == 1)
+                break;
+            if (abs(a[i] - cantus[state->bar - 1]) == 1) {
+                int temp = a[0];
+                a[0] = a[i];
+                a[i] = temp;
+                break;
+            }
+        }
+        for (int i = 1; i < length; i++) {
+            if (i == 1 && abs(a[i] - cantus[state->bar - 1]) == 1)
+                break;
+            if (abs(a[i] - cantus[state->bar - 1]) == 1) {
+                int temp = a[1];
+                a[1] = a[i];
+                a[i] = temp;
+                break;
+            }
+        }
     }
 }
 
@@ -128,6 +153,72 @@ static inline bool larger_than_octave(int this_motion) {
 static inline bool tritone_between(int p, int q) {
     return ((p == MI || p == MI - 7) && (q == FA || q == FA - 7)) ||
            ((p == FA || p == FA - 7) && (q == MI || q == MI - 7));
+}
+
+static inline int update_leaps_total(State *state, int this_motion) {
+    return abs(this_motion) > 1 ? state->leaps_total + 1 : state->leaps_total;
+}
+
+static inline bool too_many_leaps(int leaps_total) {
+    return (float)leaps_total > ((float)(BARS - 1) / 4);
+}
+
+static inline int update_leaps_large(State *state, int this_motion) {
+    return abs(this_motion) > 3 ? state->leaps_large + 1 : state->leaps_large;
+}
+
+static inline bool too_many_large_leaps(int leaps_large) {
+    return leaps_large > 2;
+}
+
+static inline int update_leaps_in_row(State *state, int this_motion) {
+    return abs(this_motion) > 1 ? state->leaps_in_row + 1 : 0;
+}
+
+static inline bool too_many_leaps_in_row(int leaps_in_row) {
+    return leaps_in_row > 2;
+}
+
+static inline bool bad_consecutive_leaps(State *state, int this_motion) {
+    if ((state->prev_motion == 2) && (this_motion > 3))
+        return true;
+    if ((state->prev_motion == 3) && (abs(this_motion) > 2 && this_motion != 4))
+        return true;
+
+    if ((state->prev_motion == -2) && (this_motion < -3))
+        return true;
+    if ((state->prev_motion == -3) &&
+        (abs(this_motion) > 2 && this_motion != -4))
+        return true;
+
+    return false;
+}
+
+static inline bool new_climax(State *state, int this_note) {
+    return this_note > state->top;
+}
+
+static inline bool cannot_surpass(int range) { return range == 10; }
+
+static inline bool repeat_climax(State *state, int this_note) {
+    return this_note == state->top;
+}
+
+static inline bool same_direction(State *state, int this_motion) {
+    return same_sign(state->prev_motion, this_motion);
+}
+
+static inline bool should_change_direction(State *state) {
+    return state->since_turn == 3;
+}
+
+static inline bool dissonant_outline(State *state, int this_note) {
+    int outline = abs(state->prev_turn - this_note);
+    if (outline == 6 || outline == 8)
+        return true;
+    if (tritone_between(state->prev_turn, this_note))
+        return true;
+    return false;
 }
 
 #endif

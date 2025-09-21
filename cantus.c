@@ -16,26 +16,16 @@ int main(void) {
     cantus[0] = cantus[BARS - 1] = 0;
     cantus[BARS - 2] = 1;
 
-    State initial_state = {.top = 1,
-                           .bottom = 0,
-                           .bar = 1,
-                           .repeated_climax = false,
-                           .disconnected_climax = false,
-                           .leaps_total = 0,
-                           .leaps_large = 0,
-                           .leaps_in_row = 0,
-                           .prev_motion = 0,
-                           .prev_turn = 0,
-                           .since_turn = 1};
+    State initial_state = {.top = 1, .bar = 1, .since_turn = 1};
 
     struct timeval st, et;
 
     gettimeofday(&st, NULL);
 
-    int steps[BARS - 2] = {0};
+    int steps[BARS - 1] = {0};
     for (int i = 0; i < 10000; i++) {
         try_note(initial_state);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < BARS - 1; i++) {
             if (abs(cantus[i + 1] - cantus[i]) == 1)
                 steps[i]++;
         }
@@ -47,7 +37,7 @@ int main(void) {
     int elapsed =
         ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec);
     printf("Time to generate: %d micro seconds\n", elapsed);
-    for (int i = 0; i < BARS - 3; i++)
+    for (int i = 0; i < BARS - 1; i++)
         printf("%d - %d: %f%% were steps\n", i, i + 1,
                (double)steps[i] / 100.0);
 
@@ -67,7 +57,7 @@ void try_note(State state) {
     // create shuffled array of notes to try
     int to_try[18];
     int range = create_range(&state, to_try);
-    shuffle(to_try, range);
+    shuffle(to_try, range, &state);
 
     // recursively try out each note in range
     for (int i = 0; i < range; i++) {
@@ -80,15 +70,15 @@ void try_note(State state) {
         int prev_note = cantus[state.bar - 1];
 
         int this_motion = this_note - prev_note;
-        // int prev_motion = state.prev_motion;
 
         if (large_unrecovered_leap(&state, this_motion))
             continue;
 
+        bool disconnected_climax = state.disconnected_climax;
         if (climax_disconnected(&state, this_motion)) {
             if (range == 10)
                 continue;
-            state.disconnected_climax = false;
+            disconnected_climax = false;
         }
 
         if (repeated_note(&state, this_note))
@@ -103,81 +93,55 @@ void try_note(State state) {
         if (tritone_between(prev_note, this_note))
             continue;
 
-        int leaps_total =
-            abs(this_motion) > 1 ? state.leaps_total + 1 : state.leaps_total;
-        // stepwise motion should predominate
-        if ((float)leaps_total > ((float)(BARS - 1) / 4))
+        int leaps_total = update_leaps_total(&state, this_motion);
+        if (too_many_leaps(leaps_total))
             continue;
 
-        int leaps_large =
-            abs(this_motion) > 3 ? state.leaps_large + 1 : state.leaps_large;
-        // no more than two large leaps per cantus
-        if (leaps_large > 2)
+        int leaps_large = update_leaps_large(&state, this_motion);
+        if (too_many_large_leaps(leaps_large))
             continue;
 
-        int leaps_in_row = abs(this_motion) > 1 ? state.leaps_in_row + 1 : 0;
-        // no more than two leaps in a row
-        if (leaps_in_row > 2)
+        int leaps_in_row = update_leaps_in_row(&state, this_motion);
+        if (too_many_leaps_in_row(leaps_in_row))
             continue;
 
-        if ((state.prev_motion == 2) && (this_motion == 4 || this_motion == 5))
-            continue;
-        if ((state.prev_motion == 3) &&
-            (abs(this_motion) > 2 && this_motion != 4))
-            continue;
-
-        if ((state.prev_motion == -2) &&
-            (this_motion == -4 || this_motion == -5))
-            continue;
-        if ((state.prev_motion == -3) &&
-            (abs(this_motion) > 2 && this_motion != -4))
+        if (bad_consecutive_leaps(&state, this_motion))
             continue;
 
         bool repeated;
-        if (this_note > state.top) {
-            // skip if attempting dissonant climax that cannot be exceeded.
-            if (range == 10 &&
-                (this_note == 6 || this_note == 8 || this_note == -6 ||
-                 (this_note == 3 && MODE == LYDIAN)))
+        if (new_climax(&state, this_note)) {
+            if (bad_climax(this_note) && cannot_surpass(range))
                 continue;
             repeated = false;
-            state.disconnected_climax = false;
-        } else if (this_note == state.top) {
-            // skip if repeating a climactic note that cannot be exceeded.
-            if (range == 10)
+            disconnected_climax = false;
+        } else if (repeat_climax(&state, this_note)) {
+            if (cannot_surpass(range))
                 continue;
-            // otherwise just flag it.
             repeated = true;
         } else
             repeated = state.repeated_climax;
 
-        int since_turn, new_turn;
-        if (same_sign(state.prev_motion, this_motion)) {
-            // no excessive motion in a single direction
-            if (state.since_turn == 3)
+        int since_turn, new_turn = state.prev_turn;
+        if (same_direction(&state, this_motion)) {
+            if (should_change_direction(&state))
                 continue;
             since_turn = state.since_turn + 1;
         } else {
-            // no outlined 7ths or 9ths
-            int outline = abs(state.prev_turn - this_note);
-            if (outline == 6 || outline == 8)
-                continue;
-            // no outlined tritones
-            if (tritone_between(state.prev_turn, this_note))
+            if (dissonant_outline(&state, this_note))
                 continue;
             since_turn = 1;
             new_turn = this_note;
         }
 
         // add the prospective note to the cantus
-        if (state.bar < BARS - 2)
+        if (!in_cadence(&state))
             cantus[state.bar] = this_note;
         // construct a new state object and recursively try the next note.
         try_note((State){.top = max(state.top, this_note),
                          .bottom = min(state.bottom, this_note),
                          .bar = state.bar + 1,
                          .repeated_climax = repeated,
-                         .disconnected_climax = state.disconnected_climax,
+                         .disconnected_climax = disconnected_climax,
                          .leaps_total = leaps_total,
                          .leaps_large = leaps_large,
                          .leaps_in_row = leaps_in_row,
