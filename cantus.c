@@ -17,6 +17,7 @@ int main(void) {
     cantus[BARS - 2] = 1;
 
     State initial_state = {.top = 1, .bar = 1, .since_turn = 1};
+    // try_note(initial_state);
 
     struct timeval st, et;
 
@@ -75,6 +76,40 @@ void try_note(State state) {
 
         int this_motion = this_note - prev_note;
 
+        bool must_fill = state.must_fill;
+        int to_fill[18];
+
+        if (must_fill) {
+            for (int i = 0; i < 18; i++) {
+                to_fill[i] = state.to_fill[i];
+            }
+        }
+
+        if (must_fill) {
+            if (state.to_fill[this_note + 7] == -1) {
+                bool bad = false;
+                for (int i = 0; i < 17; i++) {
+                    if (state.to_fill[i] == 0)
+                        bad = true;
+                }
+                if (bad)
+                    continue;
+                must_fill = false;
+            } else
+                to_fill[this_note + 7]++;
+        }
+
+        if (!must_fill && this_motion > 3) {
+            for (int i = 0; i < min(this_note, prev_note) + 7; i++)
+                to_fill[i] = -1;
+            for (int i = min(this_note, prev_note) + 7;
+                 i <= max(this_note, prev_note) + 7; i++)
+                to_fill[i] = 0;
+            for (int i = max(this_note, prev_note) + 8; i < 18; i++)
+                to_fill[i] = -1;
+            must_fill = true;
+        }
+
         if (large_unrecovered_leap(&state, this_motion))
             continue;
 
@@ -82,7 +117,7 @@ void try_note(State state) {
         if (climax_disconnected(&state, this_motion)) {
             if (range == 10)
                 continue;
-            disconnected_climax = false;
+            disconnected_climax = true;
         }
 
         if (repeated_note(&state, this_note))
@@ -106,6 +141,9 @@ void try_note(State state) {
             continue;
 
         if (steps_past_arpeggio(&state, this_motion))
+            continue;
+
+        if (arpeggio_past_step(&state, this_motion))
             continue;
 
         int leaps_in_row = update_leaps_in_row(&state, this_motion);
@@ -140,6 +178,9 @@ void try_note(State state) {
             new_turn = this_note;
         }
 
+        if (noodling(&state, this_note))
+            continue;
+
         if (bad_cadence_approach(&state, this_motion))
             continue;
 
@@ -157,6 +198,8 @@ void try_note(State state) {
                          .leaps_in_row = leaps_in_row,
                          .prev_motion = this_motion,
                          .since_turn = since_turn,
-                         .prev_turn = new_turn});
+                         .prev_turn = new_turn,
+                         .must_fill = must_fill,
+                         .to_fill = must_fill ? to_fill : NULL});
     }
 }

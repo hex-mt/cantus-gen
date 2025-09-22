@@ -31,6 +31,8 @@ typedef struct {
     int prev_motion;
     int prev_turn;
     int since_turn;
+    bool must_fill;
+    int *to_fill;
 } State;
 
 void try_note(State range);
@@ -130,7 +132,7 @@ static inline bool same_sign(int x, int y) { return (x >= 0) ^ (y < 0); }
 
 static inline bool large_unrecovered_leap(State *state, int this_motion) {
     return abs(state->prev_motion) > 3 &&
-           same_sign(state->prev_motion, this_motion);
+           (same_sign(state->prev_motion, this_motion) || abs(this_motion) > 3);
 }
 
 static inline bool repeated_note(State *state, int this_note) {
@@ -174,6 +176,11 @@ static inline bool too_many_large_leaps(int leaps_large) {
 static inline bool steps_past_arpeggio(State *state, int this_motion) {
     return state->leaps_in_row == 2 && state->since_turn > 1 &&
            same_sign(state->prev_motion, this_motion);
+}
+
+static inline bool arpeggio_past_step(State *state, int this_motion) {
+    return state->leaps_in_row == 1 && state->since_turn > 1 &&
+           same_sign(state->prev_motion, this_motion) && abs(this_motion) > 1;
 }
 
 static inline int update_leaps_in_row(State *state, int this_motion) {
@@ -221,6 +228,13 @@ static inline bool dissonant_outline(State *state, int this_note) {
     if (outline == 6 || outline == 8)
         return true;
     if (tritone_between(state->prev_turn, this_note))
+        return true;
+    return false;
+}
+
+static inline bool noodling(State *state, int this_note) {
+    if ((state->bar >= 3 && this_note == cantus[state->bar - 2]) &&
+        (cantus[state->bar - 1] == cantus[state->bar - 3]))
         return true;
     return false;
 }
