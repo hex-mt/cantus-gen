@@ -130,6 +130,35 @@ static inline int get_next_note(State *state, int to_try) {
 
 static inline bool same_sign(int x, int y) { return (x >= 0) ^ (y < 0); }
 
+static inline bool registral_break(State *state, bool *must_fill,
+                                   int to_fill[18], int this_note,
+                                   int prev_note, int this_motion) {
+    if (*must_fill) {
+        for (int i = 0; i < 18; i++) {
+            to_fill[i] = state->to_fill[i];
+        }
+        if (state->to_fill[this_note + 7] == -1) {
+            for (int i = 0; i < 17; i++) {
+                if (state->to_fill[i] == 0)
+                    return true;
+            }
+            *must_fill = false;
+        } else
+            to_fill[this_note + 7]++;
+    } else if (abs(this_motion) > 3) {
+        for (int i = 0; i < 18; i++)
+            to_fill[i] = -1; // sentinel value
+
+        int low_bound = min(this_note, prev_note) + 7;
+        int high_bound = max(this_note, prev_note) + 7;
+        for (int i = low_bound; i <= high_bound; i++)
+            to_fill[i] = 0;
+        to_fill[low_bound] = to_fill[high_bound] = 1;
+        *must_fill = true;
+    }
+    return false;
+}
+
 static inline bool large_unrecovered_leap(State *state, int this_motion) {
     return abs(state->prev_motion) > 3 &&
            (same_sign(state->prev_motion, this_motion) || abs(this_motion) > 3);

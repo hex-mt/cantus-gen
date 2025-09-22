@@ -76,39 +76,12 @@ void try_note(State state) {
 
         int this_motion = this_note - prev_note;
 
-        bool must_fill = state.must_fill;
         int to_fill[18];
+        bool must_fill = state.must_fill;
 
-        if (must_fill) {
-            for (int i = 0; i < 18; i++) {
-                to_fill[i] = state.to_fill[i];
-            }
-        }
-
-        if (must_fill) {
-            if (state.to_fill[this_note + 7] == -1) {
-                bool bad = false;
-                for (int i = 0; i < 17; i++) {
-                    if (state.to_fill[i] == 0)
-                        bad = true;
-                }
-                if (bad)
-                    continue;
-                must_fill = false;
-            } else
-                to_fill[this_note + 7]++;
-        }
-
-        if (!must_fill && this_motion > 3) {
-            for (int i = 0; i < min(this_note, prev_note) + 7; i++)
-                to_fill[i] = -1;
-            for (int i = min(this_note, prev_note) + 7;
-                 i <= max(this_note, prev_note) + 7; i++)
-                to_fill[i] = 0;
-            for (int i = max(this_note, prev_note) + 8; i < 18; i++)
-                to_fill[i] = -1;
-            must_fill = true;
-        }
+        if (registral_break(&state, &must_fill, to_fill, this_note, prev_note,
+                            this_motion))
+            continue;
 
         if (large_unrecovered_leap(&state, this_motion))
             continue;
@@ -187,6 +160,8 @@ void try_note(State state) {
         // add the prospective note to the cantus
         if (!in_cadence(&state))
             cantus[state.bar] = this_note;
+        else if (must_fill)
+            continue;
         // construct a new state object and recursively try the next note.
         try_note((State){.top = max(state.top, this_note),
                          .bottom = min(state.bottom, this_note),
