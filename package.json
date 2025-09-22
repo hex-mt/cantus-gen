@@ -1,0 +1,32 @@
+{
+  "name": "cantus",
+  "version": "1.0.0",
+  "description": "This program generates a cantus firmus roughly in line with the restrictions given in Salzer and Schachter's _Counterpoint in Composition_.",
+  "main": "index.js",
+  "scripts": {
+    "build": "make && esbuild src/index.ts --bundle --outfile=public/main.js --platform=node --format=esm --sourcemap",
+    "dev": "npx http-server ./public -o -p 9999",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hex-mt/cantus-gen.git"
+  },
+  "keywords": [],
+  "author": "Hex",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/hex-mt/cantus-gen/issues"
+  },
+  "homepage": "https://github.com/hex-mt/cantus-gen#readme",
+  "devDependencies": {
+    "@types/verovio": "^5.1.0",
+    "esbuild": "^0.25.10",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "meantonal": "^0.9.0",
+    "verovio": "^5.6.0"
+  }
+}
