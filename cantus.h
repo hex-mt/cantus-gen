@@ -252,11 +252,11 @@ static inline bool should_change_direction(State *state) {
     return state->since_turn == 3;
 }
 
-static inline bool dissonant_outline(State *state, int this_note) {
-    int outline = abs(state->prev_turn - this_note);
+static inline bool dissonant_outline(State *state, int prev_note) {
+    int outline = abs(state->prev_turn - prev_note);
     if (outline == 6 || outline == 8)
         return true;
-    if (tritone_between(state->prev_turn, this_note))
+    if (tritone_between(state->prev_turn, prev_note))
         return true;
     return false;
 }
@@ -264,6 +264,9 @@ static inline bool dissonant_outline(State *state, int this_note) {
 static inline bool noodling(State *state, int this_note) {
     if ((state->bar >= 3 && this_note == cantus[state->bar - 2]) &&
         (cantus[state->bar - 1] == cantus[state->bar - 3]))
+        return true;
+    if (state->bar >= 4 && this_note == cantus[state->bar - 2] &&
+        this_note == cantus[state->bar - 4])
         return true;
     return false;
 }

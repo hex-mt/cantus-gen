@@ -145,10 +145,10 @@ void try_note(State state) {
                 continue;
             since_turn = state.since_turn + 1;
         } else {
-            if (dissonant_outline(&state, this_note))
+            if (dissonant_outline(&state, prev_note))
                 continue;
             since_turn = 1;
-            new_turn = this_note;
+            new_turn = prev_note;
         }
 
         if (noodling(&state, this_note))
