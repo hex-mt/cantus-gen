@@ -3,14 +3,56 @@ import { VerovioToolkit } from "verovio/esm";
 import { Pitch, SPN, TonalContext, TuningMap } from "meantonal";
 import createModule from "/src/cantus.js";
 
+const modeLabel = document.getElementById("mode-label")!;
+let selectedMode = 6;
+const modeInc = document.getElementById("mode-increment")!;
+modeInc.addEventListener("click", (event) => {
+    selectedMode = (selectedMode + 1) % 7;
+    updateModeLabel();
+});
+const modeDec = document.getElementById("mode-decrement")!;
+modeDec.addEventListener("click", (event) => {
+    selectedMode = (selectedMode + 6) % 7;
+    updateModeLabel();
+});
+
+const modes = [
+    "Lydian",
+    "Ionian",
+    "Mixolydian",
+    "Dorian",
+    "Aeolian",
+    "Phrygian",
+    "Random",
+];
+function updateModeLabel() {
+    modeLabel.innerHTML = modes[selectedMode];
+}
+
+const lenLabel = document.getElementById("len-label")!;
+let selectedLen = 8;
+const lenInc = document.getElementById("len-increment")!;
+lenInc.addEventListener("click", (event) => {
+    selectedLen = (selectedLen + 1) % 9;
+    updateLenLabel();
+});
+const lenDec = document.getElementById("len-decrement")!;
+lenDec.addEventListener("click", (event) => {
+    selectedLen = (selectedLen + 8) % 9;
+    updateLenLabel();
+});
+function updateLenLabel() {
+    lenLabel.innerHTML = selectedLen != 8 ? `${selectedLen + 9}` : "Random";
+}
+
 const randomiseButton = document.getElementById("randomise")!;
 randomiseButton.addEventListener("click", (event) => {
     populateStaff();
 });
+const playButton = document.getElementById("play")!;
 let T = TuningMap.fromEDO(31);
 let frequencies: number[];
 let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const playButton = document.getElementById("play")!;
 let playing = false;
 let activeOscillators: OscillatorNode[] = [];
 playButton.addEventListener("click", async () => {
@@ -55,11 +97,15 @@ async function populateStaff() {
               <staff n="1">
                 <layer n="1">`;
 
-    const index = Math.floor(Math.random() * 6);
-    const letter = "FCGDAEB"[index];
-    const length = Math.floor(Math.random() * 8) + 9;
+    const randomMode = Math.floor(Math.random() * 6);
+    const letter = "FCGDAEB"[selectedMode != 6 ? selectedMode : randomMode];
+    const randomLen = Math.floor(Math.random() * 8) + 9;
 
-    let cantus = await generateCantus(letter, index, length);
+    let cantus = await generateCantus(
+        letter,
+        selectedMode != 6 ? selectedMode : randomMode,
+        selectedLen != 8 ? selectedLen + 9 : randomLen,
+    );
 
     cantus.forEach((p) => {
         mei += `
