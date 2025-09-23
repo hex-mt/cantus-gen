@@ -64,7 +64,7 @@ int generate_cantus(int mode, int length) {
         return 1;
     MODE = mode;
 
-    if (length < 9 || length > 16)
+    if (length < 3 || length > 16)
         return 1;
     BARS = length;
 

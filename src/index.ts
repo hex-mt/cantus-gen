@@ -57,7 +57,7 @@ async function populateStaff() {
 
     const index = Math.floor(Math.random() * 6);
     const letter = "FCGDAEB"[index];
-    const length = Math.floor(Math.random() * 7) + 9;
+    const length = Math.floor(Math.random() * 8) + 9;
 
     let cantus = await generateCantus(letter, index, length);
 
