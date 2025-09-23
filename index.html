@@ -4,17 +4,61 @@
 <head>
     <meta charset="UTF-8" />
     <title>Cantus Example</title>
-  <script type="module" crossorigin src="/cantus-gen/assets/index-CGxcQT8H.js"></script>
-  <link rel="stylesheet" crossorigin href="/cantus-gen/assets/index-CtCcTD-y.css">
+  <script type="module" crossorigin src="/cantus-gen/assets/index-Bi-M4GXN.js"></script>
+  <link rel="stylesheet" crossorigin href="/cantus-gen/assets/index-BDEBStOE.css">
 </head>
 
 <body class="bg-stone-900 flex flex-col items-center">
     <h1 class="text-orange-100 text-8xl mt-24 mb-12 font-fancy">Cantussy</h1>
     <div id="notation" class="flex flex-col items-center mb-12 h-36"></div>
     <script src="/cantus.js"></script>
-    <div class="flex gap-10">
+    <div class="flex gap-10 items-center">
+        <div class="flex items-center gap-4">
+            <div class="flex flex-col items-center text-orange-100 text-center text-2xl w-25">
+                <div class="text-sm text-orange-100/50">Length:</div>
+                <span id="len-label">Random</span>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button
+                    class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+                    id="len-increment">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
+                        <path d="m23.53 25-11.76-5.06L0 25 11.77 0z" />
+                    </svg>
+                </button>
+                <button
+                    class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+                    id="len-decrement">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
+                        <path d="M23.53 0 11.77 5.07 0 0l11.77 25z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex flex-col items-center text-orange-100 text-2xl w-32">
+                <div class="text-sm text-orange-100/50">Mode:</div>
+                <span id="mode-label">Random</span>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button
+                    class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+                    id="mode-increment">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
+                        <path d="m23.53 25-11.76-5.06L0 25 11.77 0z" />
+                    </svg>
+                </button>
+                <button
+                    class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+                    id="mode-decrement">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
+                        <path d="M23.53 0 11.77 5.07 0 0l11.77 25z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
         <button
-            class="text-orange-100 w-10 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+            class="w-10 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
             id="randomise">
             <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 25 28.27">
                 <path
@@ -23,7 +67,7 @@
             </svg>
         </button>
         <button
-            class="text-orange-100 w-18 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+            class="w-18 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
             id="play">
             <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 48 25">
                 <path
