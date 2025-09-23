@@ -5,4 +5,4 @@ all:
 	  -s ENVIRONMENT=web \
 	  -s EXPORTED_FUNCTIONS='["_generate_cantus","_get_cantus_value"]' \
 	  -s EXPORTED_RUNTIME_METHODS='["cwrap"]' \
-	  -o public/cantus.js
+	  -o src/cantus.js

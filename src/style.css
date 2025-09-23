@@ -1,0 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Monsieur+La+Doulaise&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@import "tailwindcss";
+
+g {
+  fill: var(--color-orange-100);
+  color: var(--color-orange-100);
+}
+@theme {
+  --font-fancy: "Monsieur La Doulaise", sans-serif;
+}

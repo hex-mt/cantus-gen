@@ -12,8 +12,6 @@ int cantus[32];
 const int notes[] = {-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 bool success = false;
 
-bool initialised = false;
-
 // int main(void) {
 //     srand(time(NULL));
 //     // srand(0L);
@@ -70,8 +68,11 @@ int generate_cantus(int mode, int length) {
         return 1;
     BARS = length;
 
-    if (!initialised)
+    static bool initialised = false;
+    if (!initialised) {
         initialise_env();
+        initialised = true;
+    }
 
     try_note((State){.top = 1, .bar = 1, .since_turn = 1});
 
@@ -82,8 +83,8 @@ void try_note(State state) {
     if (cantus_complete(&state)) {
         if (climax_good(&state)) {
             success = true;
-            print_cantus();
-            return;
+            // print_cantus();
+            // return;
         }
         return;
     }
