@@ -4,7 +4,8 @@
   "description": "This program generates a cantus firmus roughly in line with the restrictions given in Salzer and Schachter's _Counterpoint in Composition_.",
   "main": "index.js",
   "scripts": {
-    "build": "make && esbuild src/index.ts --bundle --outfile=public/main.js --platform=node --format=esm --sourcemap",
+    "build": "make && vite build",
+    "preview": "vite preview",
     "dev": "vite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
