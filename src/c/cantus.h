@@ -134,15 +134,36 @@ static inline int get_next_note(State *state, int to_try) {
 
 static inline bool same_sign(int x, int y) { return (x >= 0) ^ (y < 0); }
 
+static inline int get_lower_boundary(int to_fill[18]) {
+    for (int i = 0; i < 18; i++) {
+        if (to_fill[i] != -1)
+            return i - 7;
+    }
+    return 0;
+}
+
+static inline int get_upper_boundary(int to_fill[18]) {
+    for (int i = 17; i >= 0; i--) {
+        if (to_fill[i] != -1)
+            return i - 7;
+    }
+    return 0;
+}
+
 static inline bool registral_break(State *state, bool *must_fill,
                                    int to_fill[18], int this_note,
                                    int prev_note, int this_motion) {
     if (*must_fill) {
+        int lower = get_lower_boundary(state->to_fill);
+        int upper = get_upper_boundary(state->to_fill);
+        if ((this_note == lower || this_note == upper) &&
+            (prev_note == lower || prev_note == upper))
+            return true;
         for (int i = 0; i < 18; i++) {
             to_fill[i] = state->to_fill[i];
         }
         if (state->to_fill[this_note + 7] == -1) {
-            for (int i = 0; i < 17; i++) {
+            for (int i = 1; i < 17; i++) {
                 if (state->to_fill[i] == 0)
                     return true;
             }
@@ -269,12 +290,13 @@ static inline bool dissonant_outline(State *state, int prev_note) {
     return false;
 }
 
-static inline bool tritone_in_gesture(State *state, int this_note) {
-    if (state->since_turn > 1) {
+static inline bool tritone_in_gesture(State *state, int since_turn,
+                                      int this_note) {
+    if (since_turn > 1) {
         if (tritone_between(this_note, cantus[state->bar - 2])) {
             return true;
         }
-    } else if (state->since_turn > 2) {
+    } else if (since_turn > 2) {
         if (tritone_between(this_note, cantus[state->bar - 3])) {
             for (int i = 0; i < 3; i++) {
                 if (abs(cantus[state->bar - i] - cantus[state->bar - i - 1]) >
@@ -311,8 +333,8 @@ static inline bool overemphasised_tone(State *state, int this_note) {
 }
 
 static inline bool bad_cadence_approach(State *state, int this_note,
-                                        int this_motion) {
-    if (state->bar == BARS - 2 && this_motion < -3)
+                                        int this_motion, int leaps_in_row) {
+    if (state->bar == BARS - 2 && (this_motion < -3 || leaps_in_row == 2))
         return true;
     if (MODE == LYDIAN && state->bar == BARS - 3 && this_note == 3)
         return true;

@@ -184,7 +184,7 @@ void try_note(State state) {
             new_turn = prev_note;
         }
 
-        if (tritone_in_gesture(&state, this_note))
+        if (tritone_in_gesture(&state, since_turn, this_note))
             continue;
 
         if (noodling(&state, this_note))
@@ -193,7 +193,7 @@ void try_note(State state) {
         if (overemphasised_tone(&state, this_note))
             continue;
 
-        if (bad_cadence_approach(&state, this_note, this_motion))
+        if (bad_cadence_approach(&state, this_note, this_motion, leaps_in_row))
             continue;
 
         // add the prospective note to the cantus

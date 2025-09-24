@@ -190,7 +190,38 @@ function playFrequencies(frequencies: number[]) {
         osc.type = "triangle";
         osc.frequency.value = freq;
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+
+        function createImpulseResponse(audioCtx, duration = 2, decay = 2) {
+            const sampleRate = audioCtx.sampleRate;
+            const length = sampleRate * duration;
+            const impulse = audioCtx.createBuffer(2, length, sampleRate);
+            for (let c = 0; c < 2; c++) {
+                const channel = impulse.getChannelData(c);
+                for (let i = 0; i < length; i++) {
+                    channel[i] =
+                        (Math.random() * 2 - 1) *
+                        Math.pow(1 - i / length, decay); // exponential decay
+                }
+            }
+            return impulse;
+        }
+
+        const convolver = audioCtx.createConvolver();
+        convolver.buffer = createImpulseResponse(audioCtx, 2, 3);
+
+        const dryGain = audioCtx.createGain();
+        const wetGain = audioCtx.createGain();
+
+        // set wet/dry balance
+        dryGain.gain.value = 0.6; // mostly dry
+        wetGain.gain.value = 0.9; // some reverb
+
+        gain.connect(dryGain);
+        dryGain.connect(audioCtx.destination);
+
+        gain.connect(convolver);
+        convolver.connect(wetGain);
+        wetGain.connect(audioCtx.destination);
 
         gain.gain.setValueAtTime(0.06, audioCtx.currentTime + i * duration);
         gain.gain.linearRampToValueAtTime(
