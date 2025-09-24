@@ -1,11 +1,18 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Monsieur+La+Doulaise&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
 svg.definition-scale {
-    fill: var(--color-orange-100);
-    color: var(--color-orange-100);
+  fill: var(--color-orange-100);
+  color: var(--color-orange-100);
+}
+
+@font-face {
+  font-family: "Monsieur La Doulaise";
+  src: url("/fonts/monsieur-la-doulaise.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @theme {
-    --font-fancy: "Monsieur La Doulaise", sans-serif;
+  --font-fancy: "Monsieur La Doulaise", sans-serif;
 }
