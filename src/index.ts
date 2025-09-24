@@ -55,6 +55,7 @@ let frequencies: number[];
 let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let playing = false;
 let activeOscillators: OscillatorNode[] = [];
+let activeLitNotes: number[] = [];
 playButton.addEventListener("click", async () => {
     if (playing) {
         stop();
@@ -72,6 +73,11 @@ function stop() {
             osc.stop();
         } catch { }
     });
+    activeLitNotes.forEach(timer => {
+        try {
+            clearTimeout(timer);
+        } catch { }
+    })
     activeOscillators = [];
     playing = false;
 }
@@ -176,10 +182,10 @@ function playFrequencies(frequencies: number[]) {
 
     let noteObjects = document.querySelectorAll("g.note");
     noteObjects.forEach((note, i) => {
-        setTimeout(
+        activeLitNotes.push(setTimeout(
             () => (note.style.fill = "var(--color-orange-300)"),
             i * duration * 1000,
-        );
+        ));
         setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
     });
 
