@@ -1,6 +1,6 @@
 import createVerovioModule from "verovio/wasm";
 import { VerovioToolkit } from "verovio/esm";
-import { Pitch, SPN, TonalContext, TuningMap } from "meantonal";
+import { Interval, Pitch, SPN, TonalContext, TuningMap } from "meantonal";
 import createModule from "/src/cantus.js";
 
 const modeLabel = document.getElementById("mode-label")!;
@@ -162,7 +162,7 @@ async function generateCantus(
     for (let i = 0; i < length; i++) {
         result.push(reference.transposeDiatonic(values[i], ctx));
     }
-    return result;
+    return result.filter(x => SPN.toPitch("A3").stepsTo(x) < 0).length == 0 ? result : result.map(x => x.transposeReal(new Interval(5, 2)));
 }
 
 populateStaff();
