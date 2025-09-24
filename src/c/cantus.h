@@ -216,6 +216,10 @@ static inline bool arpeggio_past_step(State *state, int this_motion) {
            same_sign(state->prev_motion, this_motion) && abs(this_motion) > 1;
 }
 
+static inline bool large_leap_past_step(State *state, int this_motion) {
+    return (abs(this_motion) > 3 && same_sign(state->prev_motion, this_motion));
+}
+
 static inline int update_leaps_in_row(State *state, int this_motion) {
     return abs(this_motion) > 1 ? state->leaps_in_row + 1 : 0;
 }
@@ -271,6 +275,20 @@ static inline bool noodling(State *state, int this_note) {
         return true;
     if (state->bar >= 4 && this_note == cantus[state->bar - 2] &&
         this_note == cantus[state->bar - 4])
+        return true;
+    return false;
+}
+
+static inline bool overemphasised_tone(State *state, int this_note) {
+    int count = 0;
+    if (this_note == 0)
+        count++;
+    if (this_note == 1 && state->bar != BARS - 2)
+        count++;
+    for (int i = 0; i < state->bar; i++)
+        if (cantus[i] == this_note)
+            count++;
+    if (count > 2)
         return true;
     return false;
 }

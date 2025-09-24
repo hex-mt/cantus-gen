@@ -187,7 +187,7 @@ function playFrequencies(frequencies: number[]) {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         gain.gain.value = 0.05;
-        osc.type = "sawtooth";
+        osc.type = "triangle";
         osc.frequency.value = freq;
         osc.connect(gain);
         gain.connect(audioCtx.destination);

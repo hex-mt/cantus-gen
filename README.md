@@ -18,7 +18,7 @@ The error checks are also parameterised in a way that should make them easy to s
 
 - [x] Contained within the range of a tenth.
 - [x] Only melodic consonances occur.
-- [ ] One tone should not be over-emphasised.
+- [x] One tone should not be over-emphasised.
 - [x] Climax sould not be repeated.
 - [x] Stepwise motion should predominate.
 - [x] Between 2 to 4 leaps.
@@ -38,3 +38,4 @@ The error checks are also parameterised in a way that should make them easy to s
 ## Emergent Biases
 
 - [x] Leaps should be equally likely to occur at any point in a generated cantus.
+- [x] Any acceptable range should be equally likely to be spanned. Shouldn't be biased towards narrow or wide canti.

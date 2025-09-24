@@ -149,6 +149,9 @@ void try_note(State state) {
         if (arpeggio_past_step(&state, this_motion))
             continue;
 
+        if (large_leap_past_step(&state, this_motion))
+            continue;
+
         int leaps_in_row = update_leaps_in_row(&state, this_motion);
         if (too_many_leaps_in_row(leaps_in_row))
             continue;
@@ -182,6 +185,9 @@ void try_note(State state) {
         }
 
         if (noodling(&state, this_note))
+            continue;
+
+        if (overemphasised_tone(&state, this_note))
             continue;
 
         if (bad_cadence_approach(&state, this_motion))
