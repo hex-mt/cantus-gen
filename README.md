@@ -26,7 +26,7 @@ The error checks are also parameterised in a way that should make them easy to s
 - [x] No more than 2 leaps larger than a 4th.
 - [x] Leaps larger than a 3rd should change direction, preferably stepwise.
 - [x] No more than 2 leaps in a row.
-- [ ] Direction change should preferably be by step.
+- [x] Direction change should preferably be by step.
 - [x] Avoid excessive motion in a single direction.
 - [x] Avoid outlining dissonances between changes in direction.
 - [x] Avoid climaxing on the leading tone.

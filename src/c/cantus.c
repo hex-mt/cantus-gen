@@ -1,6 +1,6 @@
 #include <emscripten/emscripten.h>
 #include <stdint.h>
-// #include <stdio.h>
+#include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
 
@@ -184,13 +184,16 @@ void try_note(State state) {
             new_turn = prev_note;
         }
 
+        if (tritone_in_gesture(&state, this_note))
+            continue;
+
         if (noodling(&state, this_note))
             continue;
 
         if (overemphasised_tone(&state, this_note))
             continue;
 
-        if (bad_cadence_approach(&state, this_motion))
+        if (bad_cadence_approach(&state, this_note, this_motion))
             continue;
 
         // add the prospective note to the cantus

@@ -269,6 +269,23 @@ static inline bool dissonant_outline(State *state, int prev_note) {
     return false;
 }
 
+static inline bool tritone_in_gesture(State *state, int this_note) {
+    if (state->since_turn > 1) {
+        if (tritone_between(this_note, cantus[state->bar - 2])) {
+            return true;
+        }
+    } else if (state->since_turn > 2) {
+        if (tritone_between(this_note, cantus[state->bar - 3])) {
+            for (int i = 0; i < 3; i++) {
+                if (abs(cantus[state->bar - i] - cantus[state->bar - i - 1]) >
+                    1)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
 static inline bool noodling(State *state, int this_note) {
     if ((state->bar >= 3 && this_note == cantus[state->bar - 2]) &&
         (cantus[state->bar - 1] == cantus[state->bar - 3]))
@@ -293,8 +310,11 @@ static inline bool overemphasised_tone(State *state, int this_note) {
     return false;
 }
 
-static inline bool bad_cadence_approach(State *state, int this_motion) {
+static inline bool bad_cadence_approach(State *state, int this_note,
+                                        int this_motion) {
     if (state->bar == BARS - 2 && this_motion < -3)
+        return true;
+    if (MODE == LYDIAN && state->bar == BARS - 3 && this_note == 3)
         return true;
     return false;
 }
