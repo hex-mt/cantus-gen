@@ -1,81 +1,100 @@
 <!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <title>Cantus Example</title>
-  <script type="module" crossorigin src="/cantus-gen/assets/index-DDht1a__.js"></script>
-  <link rel="stylesheet" crossorigin href="/cantus-gen/assets/index-BDEBStOE.css">
-</head>
+    <link rel="icon" href="/cantus-gen/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/cantus-gen/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/cantus-gen/apple-touch-icon.png" />
+    <title>Cantussy</title>
+    <script type="module" crossorigin src="/cantus-gen/assets/index-DA8_oJt5.js"></script>
+    <link rel="stylesheet" crossorigin href="/cantus-gen/assets/index-D1L0TkKN.css">
+  </head>
 
-<body class="bg-stone-900 flex flex-col items-center">
+  <body class="bg-stone-900 flex flex-col items-center">
     <h1 class="text-orange-100 text-8xl mt-24 mb-12 font-fancy">Cantussy</h1>
     <div id="notation" class="flex flex-col items-center mb-12 h-36"></div>
     <script src="/cantus.js"></script>
     <div class="flex gap-10 items-center">
-        <div class="flex items-center gap-4">
-            <div class="flex flex-col items-center text-orange-100 text-center text-2xl w-25">
-                <div class="text-sm text-orange-100/50">Length:</div>
-                <span id="len-label">Random</span>
-            </div>
-            <div class="flex flex-col gap-2">
-                <button
-                    class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
-                    id="len-increment">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
-                        <path d="m23.53 25-11.76-5.06L0 25 11.77 0z" />
-                    </svg>
-                </button>
-                <button
-                    class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
-                    id="len-decrement">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
-                        <path d="M23.53 0 11.77 5.07 0 0l11.77 25z" />
-                    </svg>
-                </button>
-            </div>
+      <div class="flex items-center gap-4">
+        <div
+          class="flex flex-col items-center text-orange-100 text-center text-2xl w-25"
+        >
+          <div class="text-sm text-orange-100/50">Length:</div>
+          <span id="len-label">Random</span>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="flex flex-col items-center text-orange-100 text-2xl w-32">
-                <div class="text-sm text-orange-100/50">Mode:</div>
-                <span id="mode-label">Random</span>
-            </div>
-            <div class="flex flex-col gap-2">
-                <button
-                    class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
-                    id="mode-increment">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
-                        <path d="m23.53 25-11.76-5.06L0 25 11.77 0z" />
-                    </svg>
-                </button>
-                <button
-                    class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
-                    id="mode-decrement">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
-                        <path d="M23.53 0 11.77 5.07 0 0l11.77 25z" />
-                    </svg>
-                </button>
-            </div>
+        <div class="flex flex-col gap-2">
+          <button
+            class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+            id="len-increment"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
+              <path d="m23.53 25-11.76-5.06L0 25 11.77 0z" />
+            </svg>
+          </button>
+          <button
+            class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+            id="len-decrement"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
+              <path d="M23.53 0 11.77 5.07 0 0l11.77 25z" />
+            </svg>
+          </button>
         </div>
-        <button
-            class="w-10 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
-            id="randomise">
-            <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 25 28.27">
-                <path
-                    d="M12.5 0c-.24 0-.49.06-.7.19L.7 6.59c-.1.07-.1.18 0 .24l11.1 6.4c.43.26.97.26 1.4 0l11.1-6.4c.1-.06.1-.17 0-.24L13.2.19a1.41 1.41 0 0 0-.7-.19zm0 5.76a1.65.95 0 0 1 1.65.95 1.65.95 0 0 1-1.65.96 1.65.95 0 0 1-1.65-.96 1.65.95 0 0 1 1.65-.95zM.12 7.66l-.06.02A.16.16 0 0 0 0 7.8v12.8c0 .51.27.98.7 1.23l11.1 6.4c.1.07.2.01.2-.12v-12.8c0-.5-.26-.97-.7-1.23L.2 7.7a.19.19 0 0 0-.09-.03zm2.05 3.17a1.65.95 60 0 1 1.41 1.03 1.65.95 60 0 1 0 1.9 1.65.95 60 0 1-1.65-.94 1.65.95 60 0 1 0-1.91 1.65.95 60 0 1 .24-.08zm6.5 11.26a1.65.95 60 0 1 1.4 1.03 1.65.95 60 0 1 0 1.9 1.65.95 60 0 1-1.64-.95 1.65.95 60 0 1 0-1.9 1.65.95 60 0 1 .24-.08zM24.88 7.66a.19.19 0 0 0-.09.03L13.7 14.1c-.43.26-.7.72-.7 1.23v12.8c0 .13.1.19.2.12l11.1-6.4c.43-.25.7-.72.7-1.22V7.82c0-.07-.02-.12-.06-.14a.1.1 0 0 0-.06-.02zm-2.05 3.17a.95 1.65 30 0 1 .24.08.95 1.65 30 0 1 0 1.9.95 1.65 30 0 1-1.65.96.95 1.65 30 0 1 0-1.9.95 1.65 30 0 1 1.41-1.04zm-3.25 5.63a.95 1.65 30 0 1 .25.08.95 1.65 30 0 1 0 1.9.95 1.65 30 0 1-1.66.96.95 1.65 30 0 1 0-1.91.95 1.65 30 0 1 1.41-1.03zm-3.25 5.63a.95 1.65 30 0 1 .25.07.95 1.65 30 0 1 0 1.91.95 1.65 30 0 1-1.66.95.95 1.65 30 0 1 0-1.9.95 1.65 30 0 1 1.41-1.03z"
-                    paint-order="fill markers stroke" />
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex flex-col items-center text-orange-100 text-2xl w-32">
+          <div class="text-sm text-orange-100/50">Mode:</div>
+          <span id="mode-label">Random</span>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button
+            class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+            id="mode-increment"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
+              <path d="m23.53 25-11.76-5.06L0 25 11.77 0z" />
             </svg>
-        </button>
-        <button
-            class="w-18 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
-            id="play">
-            <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 48 25">
-                <path
-                    d="M48 0v24.75c-6.21-6.16-4.71-9.26-14.26-10.02A6.06 6.06 0 0 1 29.34 25H13.7a6.09 6.09 0 0 1-3.44-11.08c-1.53-.1-3.03-.22-4.44-.37a.96.96 0 0 1-.82.94l-3.56.52A1.26 1.26 0 0 1 0 13.76V11a1.26 1.26 0 0 1 1.44-1.25l3.56.52a.96.96 0 0 1 .82.94C14.8 10.28 27 10.35 32 10.13 43.48 9.6 41.44 6.5 48 0zM29.34 14.9H13.7a3.98 3.98 0 0 0-4.02 4.02 3.98 3.98 0 0 0 4.02 4.02h15.64a3.98 3.98 0 0 0 4.02-4.02 3.98 3.98 0 0 0-4.02-4.01z"
-                    paint-order="fill markers stroke" />
+          </button>
+          <button
+            class="w-6 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+            id="mode-decrement"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.53 25">
+              <path d="M23.53 0 11.77 5.07 0 0l11.77 25z" />
             </svg>
-        </button>
+          </button>
+        </div>
+      </div>
+      <button
+        class="w-10 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+        id="randomise"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xml:space="preserve"
+          viewBox="0 0 25 28.27"
+        >
+          <path
+            d="M12.5 0c-.24 0-.49.06-.7.19L.7 6.59c-.1.07-.1.18 0 .24l11.1 6.4c.43.26.97.26 1.4 0l11.1-6.4c.1-.06.1-.17 0-.24L13.2.19a1.41 1.41 0 0 0-.7-.19zm0 5.76a1.65.95 0 0 1 1.65.95 1.65.95 0 0 1-1.65.96 1.65.95 0 0 1-1.65-.96 1.65.95 0 0 1 1.65-.95zM.12 7.66l-.06.02A.16.16 0 0 0 0 7.8v12.8c0 .51.27.98.7 1.23l11.1 6.4c.1.07.2.01.2-.12v-12.8c0-.5-.26-.97-.7-1.23L.2 7.7a.19.19 0 0 0-.09-.03zm2.05 3.17a1.65.95 60 0 1 1.41 1.03 1.65.95 60 0 1 0 1.9 1.65.95 60 0 1-1.65-.94 1.65.95 60 0 1 0-1.91 1.65.95 60 0 1 .24-.08zm6.5 11.26a1.65.95 60 0 1 1.4 1.03 1.65.95 60 0 1 0 1.9 1.65.95 60 0 1-1.64-.95 1.65.95 60 0 1 0-1.9 1.65.95 60 0 1 .24-.08zM24.88 7.66a.19.19 0 0 0-.09.03L13.7 14.1c-.43.26-.7.72-.7 1.23v12.8c0 .13.1.19.2.12l11.1-6.4c.43-.25.7-.72.7-1.22V7.82c0-.07-.02-.12-.06-.14a.1.1 0 0 0-.06-.02zm-2.05 3.17a.95 1.65 30 0 1 .24.08.95 1.65 30 0 1 0 1.9.95 1.65 30 0 1-1.65.96.95 1.65 30 0 1 0-1.9.95 1.65 30 0 1 1.41-1.04zm-3.25 5.63a.95 1.65 30 0 1 .25.08.95 1.65 30 0 1 0 1.9.95 1.65 30 0 1-1.66.96.95 1.65 30 0 1 0-1.91.95 1.65 30 0 1 1.41-1.03zm-3.25 5.63a.95 1.65 30 0 1 .25.07.95 1.65 30 0 1 0 1.91.95 1.65 30 0 1-1.66.95.95 1.65 30 0 1 0-1.9.95 1.65 30 0 1 1.41-1.03z"
+            paint-order="fill markers stroke"
+          />
+        </svg>
+      </button>
+      <button
+        class="w-18 fill-orange-100 hover:fill-orange-200 hover:scale-110 active:fill-orange-50 active:scale-90 transition"
+        id="play"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xml:space="preserve"
+          viewBox="0 0 48 25"
+        >
+          <path
+            d="M48 0v24.75c-6.21-6.16-4.71-9.26-14.26-10.02A6.06 6.06 0 0 1 29.34 25H13.7a6.09 6.09 0 0 1-3.44-11.08c-1.53-.1-3.03-.22-4.44-.37a.96.96 0 0 1-.82.94l-3.56.52A1.26 1.26 0 0 1 0 13.76V11a1.26 1.26 0 0 1 1.44-1.25l3.56.52a.96.96 0 0 1 .82.94C14.8 10.28 27 10.35 32 10.13 43.48 9.6 41.44 6.5 48 0zM29.34 14.9H13.7a3.98 3.98 0 0 0-4.02 4.02 3.98 3.98 0 0 0 4.02 4.02h15.64a3.98 3.98 0 0 0 4.02-4.02 3.98 3.98 0 0 0-4.02-4.01z"
+            paint-order="fill markers stroke"
+          />
+        </svg>
+      </button>
     </div>
-</body>
-
+  </body>
 </html>
