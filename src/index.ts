@@ -32,12 +32,12 @@ function updateModeLabel() {
 const lenLabel = document.getElementById("len-label")!;
 let selectedLen = 8;
 const lenInc = document.getElementById("len-increment")!;
-lenInc.addEventListener("click", (event) => {
+lenInc.addEventListener("click", () => {
     selectedLen = (selectedLen + 1) % 9;
     updateLenLabel();
 });
 const lenDec = document.getElementById("len-decrement")!;
-lenDec.addEventListener("click", (event) => {
+lenDec.addEventListener("click", () => {
     selectedLen = (selectedLen + 8) % 9;
     updateLenLabel();
 });
@@ -147,7 +147,7 @@ async function populateStaff() {
     });
 
     verovio.loadData(mei);
-    const svg = verovio.renderToSVG(1, {});
+    const svg = verovio.renderToSVG(1);
 
     document.getElementById("notation")!.innerHTML = svg;
 }
