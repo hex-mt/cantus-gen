@@ -1,6 +1,5 @@
 #include <emscripten/emscripten.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
 
@@ -8,57 +7,18 @@
 
 int BARS;
 int MODE;
-int cantus[32];
+int cantus[32] = {0};
 const int notes[] = {-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-bool success = false;
+bool cantus_success = false;
 
-// int main(void) {
-//     srand(time(NULL));
-//     // srand(0L);
-//
-//     cantus[0] = cantus[BARS - 1] = 0;
-//     cantus[BARS - 2] = 1;
-//
-//     State initial_state = {.top = 1, .bar = 1, .since_turn = 1};
-//     // try_note(initial_state);
-//
-//     struct timeval st, et;
-//
-//     gettimeofday(&st, NULL);
-//
-//     int steps[BARS - 1] = {0};
-//     int leaps = 0;
-//     for (int i = 0; i < 10000; i++) {
-//         try_note(initial_state);
-//         for (int i = 0; i < BARS - 1; i++) {
-//             if (abs(cantus[i + 1] - cantus[i]) == 1)
-//                 steps[i]++;
-//             else
-//                 leaps++;
-//         }
-//         success = false;
-//     }
-//
-//     gettimeofday(&et, NULL);
-//
-//     int elapsed =
-//         ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec);
-//     printf("Time to generate: %d micro seconds\n", elapsed);
-//     for (int i = 0; i < BARS - 1; i++)
-//         printf("%d - %d: %f%% were steps\n", i, i + 1,
-//                (double)steps[i] / 100.0);
-//     printf("average number of leaps per cantus: %f\n", (double)leaps /
-//     10000);
-//
-//     return EXIT_SUCCESS;
-// }
-
+EMSCRIPTEN_KEEPALIVE
 void initialise_env(void) {
     srand(time(NULL));
     cantus[0] = cantus[BARS - 1] = 0;
     cantus[BARS - 2] = 1;
 }
 
+EMSCRIPTEN_KEEPALIVE
 int generate_cantus(int mode, int length) {
     if (mode < 0 || mode > 5)
         return 1;
@@ -82,7 +42,7 @@ int generate_cantus(int mode, int length) {
 void try_note(State state) {
     if (cantus_complete(&state)) {
         if (climax_good(&state)) {
-            success = true;
+            cantus_success = true;
             // print_cantus();
             // return;
         }
@@ -96,7 +56,7 @@ void try_note(State state) {
 
     // recursively try out each note in range
     for (int i = 0; i < range; i++) {
-        if (success)
+        if (cantus_success)
             return;
         if (in_cadence(&state) && i > 0)
             return;

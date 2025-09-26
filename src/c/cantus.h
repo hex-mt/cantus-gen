@@ -1,10 +1,10 @@
-#ifndef CANTUS
-#define CANTUS
+#ifndef CANTUS_H
+#define CANTUS_H
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define MEANTONAL
 #include "meantonal.h"
 
 #define max(x, y) (((x) >= (y)) ? (x) : (y))
@@ -12,7 +12,6 @@
 
 extern int cantus[32];
 extern const int notes[17];
-extern bool success;
 
 extern int BARS;
 extern int MODE;
@@ -35,6 +34,7 @@ typedef struct {
     int *to_fill;
 } State;
 
+void initialise_env(void);
 int generate_cantus(int mode, int length);
 
 void try_note(State range);
