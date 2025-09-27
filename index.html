@@ -10,11 +10,13 @@
   </head>
 
   <body class="bg-stone-900 flex flex-col min-h-screen">
-    <main class="flex-1 flex flex-col items-center relative">
+    <main
+      class="flex-1 flex flex-col items-center relative w-full overflow-hidden"
+    >
       <h1 class="text-orange-100 text-8xl mt-24 mb-12 font-fancy">Cantussy</h1>
 
       <section id="section-1" class="flex flex-col items-center">
-        <div id="cantus" class="flex flex-col items-center mb-12"></div>
+        <div id="cantus" class="w-full p-8"></div>
         <div class="flex gap-10 items-center">
           <div class="flex items-center gap-4">
             <div
@@ -213,18 +215,26 @@
         </div>
       </section>
 
-      <div class="flex gap-10 relative top-100">
+      <div
+        class="relative top-100 flex bg-stone-800 rounded-full text-orange-100"
+      >
         <button
-          id="cantus-section"
-          class="px-6 py-2 bg-orange-100 hover:bg-orange-200 active:bg-orange-50 text-bold"
+          id="section-button-1"
+          class="w-42 p-4 rounded-full hover:bg-stone-700 active:bg-stone-600 transition-colors"
         >
-          Cantus Gen
+          Cantus
         </button>
         <button
-          id="ctp-section"
-          class="px-6 py-2 bg-orange-100 hover:bg-orange-200 active:bg-orange-50 text-bold"
+          id="section-button-2"
+          class="w-42 p-4 rounded-full hover:bg-stone-700 active:bg-stone-600 transition-colors"
         >
-          Species Gen
+          Counterpoint
+        </button>
+        <button
+          id="section-button-3"
+          class="w-42 p-4 rounded-full hover:bg-stone-700 active:bg-stone-600 transition-colors"
+        >
+          Unfold it!
         </button>
       </div>
     </main>

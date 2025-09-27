@@ -43,12 +43,12 @@ playCtpBottomButton.addEventListener("click", handleClickPlayCtpBottom);
 const playCtpButton = document.getElementById("play-ctp")!;
 playCtpButton.addEventListener("click", handleClickPlayCtp);
 
-const cantusSection = document.getElementById("cantus-section")!;
+const cantusSection = document.getElementById("section-button-1")!;
 cantusSection.addEventListener("click", () => {
     showSection(1);
 })
 
-const ctpSection = document.getElementById("ctp-section")!;
+const ctpSection = document.getElementById("section-button-2")!;
 ctpSection.addEventListener("click", () => {
     showSection(2);
 })

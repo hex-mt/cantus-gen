@@ -178,7 +178,7 @@ export async function drawCtp() {
 
     if (state.ctp[0].isEqual(new Pitch(0, 0))) {
         document.getElementById("ctp")!.innerHTML =
-            `<div class="p-6 border-orange-100 border-2 text-orange-100 text-xl">No solutions found :(</div>`;
+            `<div class="p-6 my-18 border-orange-100 border-2 text-orange-100 text-xl">No solutions found :(</div>`;
         return;
     }
 

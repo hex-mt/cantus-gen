@@ -73,6 +73,11 @@ export function showSection(next: number) {
     const nextEl = document.getElementById(`section-${next}`)!;
     const forward = next > state.currentSection;
 
+    const currButton = document.getElementById(`section-button-${state.currentSection}`)!;
+    const nextButton = document.getElementById(`section-button-${next}`)!;
+    currButton.classList.remove("section-button-active");
+    nextButton.classList.add("section-button-active");
+
     // Remove only the active class from current
     currEl.classList.remove("section-active");
 

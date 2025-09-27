@@ -6,7 +6,7 @@ svg.definition-scale {
 }
 
 #second-head {
-  opacity: 50%;
+  opacity: 66%;
 }
 
 g.syl {
@@ -50,6 +50,10 @@ section.from-left {
 section.from-right {
   transform: translateX(100%);
   opacity: 0;
+}
+
+.section-button-active {
+  background-color: var(--color-stone-500);
 }
 
 @font-face {
