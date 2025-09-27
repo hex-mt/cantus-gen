@@ -4,6 +4,7 @@ import {
     handleDecrementLength,
     handleIncrementLength,
     toggleSolfa,
+    showSection,
 } from "./ts/state.js";
 import { handleClickPlay, handleClickPlayCtp, handleClickPlayCtpBottom, handleClickPlayCtpTop } from "./ts/audio.js";
 import { drawCantus, drawCtp } from "./ts/cantusScore.js";
@@ -42,4 +43,15 @@ playCtpBottomButton.addEventListener("click", handleClickPlayCtpBottom);
 const playCtpButton = document.getElementById("play-ctp")!;
 playCtpButton.addEventListener("click", handleClickPlayCtp);
 
+const cantusSection = document.getElementById("cantus-section")!;
+cantusSection.addEventListener("click", () => {
+    showSection(1);
+})
+
+const ctpSection = document.getElementById("ctp-section")!;
+ctpSection.addEventListener("click", () => {
+    showSection(2);
+})
+
+showSection(1);
 drawCantus();

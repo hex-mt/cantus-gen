@@ -13,6 +13,45 @@ g.syl {
   visibility: var(--box-visibility, hidden);
 }
 
+section {
+  position: absolute;
+  top: 15rem;
+  transform: translateX(100%); /* default: off to the right */
+  opacity: 0;
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease;
+}
+
+/* Active: visible in the middle */
+.section-active {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 1;
+}
+
+/* Animate current out */
+section.to-left {
+  transform: translateX(-100%);
+  opacity: 0;
+  z-index: 0;
+}
+section.to-right {
+  transform: translateX(100%);
+  opacity: 0;
+  z-index: 0;
+}
+
+/* Prep incoming position */
+section.from-left {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+section.from-right {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
 @font-face {
   font-family: "Monsieur La Doulaise";
   src: url("/fonts/monsieur-la-doulaise.woff2") format("woff2");

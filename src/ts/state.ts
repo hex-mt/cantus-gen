@@ -1,5 +1,4 @@
 import type { Pitch } from "meantonal";
-import { drawCantus } from "./cantusScore.js";
 
 export const state = {
     cantus: [] as Pitch[],
@@ -12,6 +11,7 @@ export const state = {
     modeLabel: document.getElementById("mode-label")!,
     lenLabel: document.getElementById("len-label")!,
     solfa: false,
+    currentSection: 2,
 };
 
 export function handleIncrementMode() {
@@ -64,4 +64,30 @@ export function toggleSolfa() {
         document.documentElement.style.setProperty("--box-visibility", "hidden");
     hand?.classList.toggle("hidden");
     fist?.classList.toggle("hidden");
+}
+
+export function showSection(next: number) {
+    if (next === state.currentSection) return;
+
+    const currEl = document.getElementById(`section-${state.currentSection}`)!;
+    const nextEl = document.getElementById(`section-${next}`)!;
+    const forward = next > state.currentSection;
+
+    // Remove only the active class from current
+    currEl.classList.remove("section-active");
+
+    // Animate current out
+    currEl.classList.add(forward ? "to-left" : "to-right");
+
+    // Prep next off-screen on correct side
+    nextEl.classList.remove("to-left", "to-right");
+    nextEl.classList.add(forward ? "from-right" : "from-left");
+
+    // Force reflow before activating (so transition happens)
+    requestAnimationFrame(() => {
+        nextEl.classList.remove("from-right", "from-left");
+        nextEl.classList.add("section-active");
+    });
+
+    state.currentSection = next;
 }
