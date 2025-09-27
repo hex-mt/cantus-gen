@@ -13,6 +13,7 @@ Pitch mt_cantus[32] = {0};
 Pitch cantus_motions[32] = {0};
 Pitch mt_ctp[32] = {0};
 int ctp_success = false;
+TonalContext context;
 
 EMSCRIPTEN_KEEPALIVE
 Pitch *get_ctp() { return mt_ctp; }
@@ -23,7 +24,7 @@ void generate_ctp(void) {
 
     // cantus data init
     ctp_state c;
-    TonalContext context = context_from_chroma(MODE - 1, MODE);
+    context = context_from_chroma(MODE - 1, MODE);
     Pitch tonic = pitch_from_chroma(MODE - 1, 4);
 
     for (int i = 0; i < BARS; i++) {
@@ -59,14 +60,21 @@ void next_chunk(ctp_state *c, int length, int left) {
             return;
         }
         for (chunk_node *cur = chunks; cur != NULL; cur = cur->next) {
+
             c->ints[index + 1] = cur->data.cons;
             c->notes[index + 1] =
                 transpose_real(mt_cantus[index + 1], c->ints[index + 1]);
+            if (degree_alteration(c->notes[index], context))
+                return;
             c->motions[index] =
                 interval_between(c->notes[index], c->notes[index + 1]);
             next_chunk(c, length, left - 1);
         }
     } else if (left == 2) {
+        int alteration = degree_alteration(c->notes[index], context);
+        if (alteration &&
+            (degree_number(c->notes[index], context) != 5 || alteration != 1))
+            return;
         chunk_node *chunks = get_chunks(c->ints[index], cantus_motions[index]);
         if (!chunks) {
             return;
