@@ -62,7 +62,7 @@ let wetGain: GainNode;
 function initialiseAudio() {
   audio.ctx = new window.AudioContext();
   gain = audio.ctx.createGain();
-  gain.gain.value = 0.05;
+  gain.gain.value = 1;
 
   function createImpulseResponse(duration = 2, decay = 2) {
     const sampleRate = audio.ctx!.sampleRate;
@@ -116,37 +116,7 @@ function playCantus() {
     setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
   });
 
-  frequencies.forEach((freq, i) => {
-    let osc = audio.ctx!.createOscillator();
-    osc.type = "triangle";
-    osc.connect(gain);
-    osc.frequency.value = freq;
-
-    gain.gain.setValueAtTime(0.06, audio.ctx!.currentTime + i * duration);
-    gain.gain.linearRampToValueAtTime(
-      0.3,
-      audio.ctx!.currentTime + i * duration + 0.01,
-    );
-    gain.gain.linearRampToValueAtTime(
-      0.06,
-      audio.ctx!.currentTime + (i + 1) * duration,
-    );
-    osc.start(time);
-    osc.stop(time + duration);
-
-    // remove oscillator from active list when it ends
-    osc.onended = () => {
-      audio.activeOscillators = audio.activeOscillators.filter(
-        (o) => o !== osc,
-      );
-      if (audio.activeOscillators.length === 0) {
-        audio.playing = false; // playback finished naturally
-      }
-    };
-
-    audio.activeOscillators.push(osc);
-    time += duration;
-  });
+  scheduleFrequencies(frequencies, time, duration);
 }
 
 function playCtp() {
@@ -188,28 +158,37 @@ function playCtp() {
     );
   });
 
-  scheduleFrequencies(audio, frequenciesLower, time, duration);
-  scheduleFrequencies(audio, frequenciesUpper, time, duration);
+  scheduleFrequencies(frequenciesLower, time, duration, -0.66);
+  scheduleFrequencies(frequenciesUpper, time, duration, 0.66);
 }
 
 function scheduleFrequencies(
-  audio: AudioState, // your audio state object
   frequencies: number[], // array of freqs
   baseTime: number, // absolute start time
   duration: number, // duration per note
+  pan: number = 0,
 ) {
   frequencies.forEach((freq, i) => {
     const osc = audio.ctx!.createOscillator();
     osc.type = "triangle";
     osc.frequency.value = freq;
 
-    const gain = audio.ctx!.createGain();
-    osc.connect(gain);
-    gain.connect(audio.ctx!.destination);
+    // per-note nodes
+    const noteGain = audio.ctx!.createGain();
+    const panner = audio.ctx!.createStereoPanner();
 
-    gain.gain.setValueAtTime(0.06, baseTime + i * duration);
-    gain.gain.linearRampToValueAtTime(0.3, baseTime + i * duration + 0.01);
-    gain.gain.linearRampToValueAtTime(0.06, baseTime + (i + 1) * duration);
+    // set pan
+    panner.pan.setValueAtTime(pan, baseTime);
+
+    // connect chain: osc → noteGain → panner → global gain
+    osc.connect(noteGain);
+    noteGain.connect(panner);
+    panner.connect(gain); // "gain" is the one from initialiseAudio
+
+    // envelope
+    noteGain.gain.setValueAtTime(0.06, baseTime + i * duration);
+    noteGain.gain.linearRampToValueAtTime(0.3, baseTime + i * duration + 0.01);
+    noteGain.gain.linearRampToValueAtTime(0.06, baseTime + (i + 1) * duration);
 
     osc.start(baseTime + i * duration);
     osc.stop(baseTime + (i + 1) * duration);
