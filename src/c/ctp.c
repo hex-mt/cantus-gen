@@ -21,6 +21,7 @@ Pitch *get_ctp() { return mt_ctp; }
 EMSCRIPTEN_KEEPALIVE
 void generate_ctp(void) {
     generate_chunks();
+    ctp_success = false;
 
     // cantus data init
     ctp_state c;

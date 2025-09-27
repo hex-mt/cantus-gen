@@ -1,9 +1,9 @@
 import {
-  handleDecrementMode,
-  handleIncrementMode,
-  handleDecrementLength,
-  handleIncrementLength,
-  toggleSolfa,
+    handleDecrementMode,
+    handleIncrementMode,
+    handleDecrementLength,
+    handleIncrementLength,
+    toggleSolfa,
 } from "./ts/state.js";
 import { handleClickPlay, handleClickPlayCtp } from "./ts/audio.js";
 import { drawCantus, drawCtp } from "./ts/cantusScore.js";
@@ -20,7 +20,7 @@ lenDec.addEventListener("click", handleDecrementLength);
 
 const randomiseButton = document.getElementById("randomise")!;
 randomiseButton.addEventListener("click", () => {
-  drawCantus(true);
+    drawCantus(true);
 });
 
 const playButton = document.getElementById("play")!;
@@ -30,9 +30,7 @@ const solfaButton = document.getElementById("solfa");
 solfaButton?.addEventListener("click", toggleSolfa);
 
 const randomiseCtpButton = document.getElementById("randomise-ctp")!;
-randomiseCtpButton.addEventListener("click", () => {
-  drawCtp();
-});
+randomiseCtpButton.addEventListener("click", drawCtp);
 
 const playCtpButton = document.getElementById("play-ctp")!;
 playCtpButton.addEventListener("click", handleClickPlayCtp);
