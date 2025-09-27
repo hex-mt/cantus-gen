@@ -5,6 +5,14 @@ svg.definition-scale {
   color: var(--color-orange-100);
 }
 
+#second-head {
+  opacity: 50%;
+}
+
+g.syl {
+  visibility: var(--box-visibility, hidden);
+}
+
 @font-face {
   font-family: "Monsieur La Doulaise";
   src: url("/fonts/monsieur-la-doulaise.woff2") format("woff2");

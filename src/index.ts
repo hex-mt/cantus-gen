@@ -19,9 +19,7 @@ const lenDec = document.getElementById("len-decrement")!;
 lenDec.addEventListener("click", handleDecrementLength);
 
 const randomiseButton = document.getElementById("randomise")!;
-randomiseButton.addEventListener("click", () => {
-    drawCantus(true);
-});
+randomiseButton.addEventListener("click", drawCantus)
 
 const playButton = document.getElementById("play")!;
 playButton.addEventListener("click", handleClickPlay);
@@ -35,4 +33,4 @@ randomiseCtpButton.addEventListener("click", drawCtp);
 const playCtpButton = document.getElementById("play-ctp")!;
 playCtpButton.addEventListener("click", handleClickPlayCtp);
 
-drawCantus(true);
+drawCantus();

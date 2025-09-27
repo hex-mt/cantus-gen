@@ -13,7 +13,7 @@ let actualMode: number = 0;
 let tonicLetter: string = "";
 let actualLength: number = 0;
 
-export async function drawCantus(newCantus: boolean = false) {
+export async function drawCantus() {
     Module = await createModule();
     audio.stop();
 
@@ -41,14 +41,12 @@ export async function drawCantus(newCantus: boolean = false) {
               <staff n="1">
                 <layer n="1">`;
 
-    if (newCantus) {
-        actualMode = state.mode != 6 ? state.mode : Math.floor(Math.random() * 6);
-        tonicLetter = "FCGDAEB"[actualMode];
-        actualLength =
-            state.length != 8 ? state.length + 9 : Math.floor(Math.random() * 8) + 9;
+    actualMode = state.mode != 6 ? state.mode : Math.floor(Math.random() * 6);
+    tonicLetter = "FCGDAEB"[actualMode];
+    actualLength =
+        state.length != 8 ? state.length + 9 : Math.floor(Math.random() * 8) + 9;
 
-        state.cantus = await generateCantus();
-    }
+    state.cantus = await generateCantus();
 
     state.repositionedCantus =
         state.cantus.filter((x) => SPN.toPitch("A3").stepsTo(x) < 0).length == 0
@@ -59,7 +57,7 @@ export async function drawCantus(newCantus: boolean = false) {
 
     state.repositionedCantus.forEach((p, i) => {
         mei += `<note pname="${p.letter.toLowerCase()}" oct="${p.octave}" dur="1">`;
-        if (state.solfa) mei += `<verse><syl>${solfa[i]}</syl></verse>`;
+        mei += `<verse><syl>${solfa[i]}</syl></verse>`;
         mei += `</note>`;
     });
 
