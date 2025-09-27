@@ -43,6 +43,28 @@ export async function handleClickPlay() {
     }
 }
 
+export async function handleClickPlayCtpTop() {
+    if (audio.ctx === undefined) initialiseAudio();
+    if (audio.playing) {
+        audio.stop();
+    } else {
+        await audio.ctx!.resume();
+        playCtpTop();
+        audio.playing = true;
+    }
+}
+
+export async function handleClickPlayCtpBottom() {
+    if (audio.ctx === undefined) initialiseAudio();
+    if (audio.playing) {
+        audio.stop();
+    } else {
+        await audio.ctx!.resume();
+        playCtpBottom();
+        audio.playing = true;
+    }
+}
+
 export async function handleClickPlayCtp() {
     if (audio.ctx === undefined) initialiseAudio();
     if (audio.playing) {
@@ -119,10 +141,64 @@ function playCantus() {
     scheduleFrequencies(frequencies, time, duration);
 }
 
+function playCtpTop() {
+    let frequenciesUpper = state.upperVoice.map((p) => audio.freq.toHz(p));
+    const duration = 0.75;
+
+    let time = audio.ctx!.currentTime;
+
+    audio.activeOscillators = [];
+
+    const layers = document.querySelectorAll("#ctp g.layer");
+
+    const noteLists = Array.from(layers).map((layer) =>
+        layer.querySelectorAll("g.note"),
+    ) as Array<NodeListOf<SVGGElement>>;
+
+    noteLists[0].forEach((note, i) => {
+        audio.activeLitNotes.push(
+            setTimeout(
+                () => (note.style.fill = "var(--color-orange-300)"),
+                i * duration * 1000,
+            ),
+        );
+        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
+    });
+
+    scheduleFrequencies(frequenciesUpper, time, duration, 0.66);
+}
+
+function playCtpBottom() {
+    let frequenciesLower = state.lowerVoice.map((p) => audio.freq.toHz(p));
+    const duration = 0.75;
+
+    let time = audio.ctx!.currentTime;
+
+    audio.activeOscillators = [];
+
+    const layers = document.querySelectorAll("#ctp g.layer");
+
+    const noteLists = Array.from(layers).map((layer) =>
+        layer.querySelectorAll("g.note"),
+    ) as Array<NodeListOf<SVGGElement>>;
+
+    noteLists[1].forEach((note, i) => {
+        audio.activeLitNotes.push(
+            setTimeout(
+                () => (note.style.fill = "var(--color-orange-300)"),
+                i * duration * 1000,
+            ),
+        );
+        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
+    });
+
+    scheduleFrequencies(frequenciesLower, time, duration, 0.66);
+}
+
 function playCtp() {
     let frequenciesUpper = state.upperVoice.map((p) => audio.freq.toHz(p));
     let frequenciesLower = state.lowerVoice.map((p) => audio.freq.toHz(p));
-    const duration = 1;
+    const duration = 0.75;
 
     let time = audio.ctx!.currentTime;
 
