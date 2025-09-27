@@ -50,7 +50,7 @@ chunk_node *create_chunk(void) {
 }
 
 void generate_chunks(void) {
-    int count = 0;
+    // int count = 0;
     for (int i = 0; i < MELODIC_INDEX_COUNT; i++) {
         for (int j = 0; j < HARMONIC_INDEX_COUNT; j++) {
             for (int k = 0; k < HARMONIC_INDEX_COUNT; k++) {
@@ -113,7 +113,7 @@ void generate_chunks(void) {
             }
         }
     }
-    printf("%d\n", count);
+    // printf("%d\n", count);
 }
 
 int map_melodic_index(Interval m) {

@@ -34,6 +34,14 @@ void generate_ctp(void) {
         cantus_motions[i] = interval_between(mt_cantus[i], mt_cantus[i + 1]);
     }
 
+    // shuffle the firstInts array
+    for (int i = 0; i < 4; i++) {
+        int s = rand() % (4 - i) + i;
+        Interval temp = firstInts[i];
+        firstInts[i] = firstInts[s];
+        firstInts[s] = temp;
+    }
+
     for (int i = 0; i < 4; i++) {
         c.ints[0] = firstInts[i];
         c.notes[0] = transpose_real(mt_cantus[0], c.ints[0]);

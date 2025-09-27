@@ -5,6 +5,8 @@ export const state = {
   cantus: [] as Pitch[],
   ctp: [] as Pitch[],
   repositionedCantus: [] as Pitch[],
+  upperVoice: [] as Pitch[],
+  lowerVoice: [] as Pitch[],
   mode: 6,
   length: 8,
   modeLabel: document.getElementById("mode-label")!,

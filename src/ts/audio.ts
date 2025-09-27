@@ -38,7 +38,18 @@ export async function handleClickPlay() {
     audio.stop();
   } else {
     await audio.ctx!.resume();
-    playFrequencies();
+    playCantus();
+    audio.playing = true;
+  }
+}
+
+export async function handleClickPlayCtp() {
+  if (audio.ctx === undefined) initialiseAudio();
+  if (audio.playing) {
+    audio.stop();
+  } else {
+    await audio.ctx!.resume();
+    playCtp();
     audio.playing = true;
   }
 }
@@ -84,7 +95,7 @@ function initialiseAudio() {
   wetGain.connect(audio.ctx.destination);
 }
 
-function playFrequencies() {
+function playCantus() {
   let frequencies = state.repositionedCantus.map((p) => audio.freq.toHz(p));
   const duration = 0.5;
 
@@ -135,5 +146,84 @@ function playFrequencies() {
 
     audio.activeOscillators.push(osc);
     time += duration;
+  });
+}
+
+function playCtp() {
+  let frequenciesUpper = state.upperVoice.map((p) => audio.freq.toHz(p));
+  let frequenciesLower = state.lowerVoice.map((p) => audio.freq.toHz(p));
+  const duration = 0.5;
+
+  let time = audio.ctx!.currentTime;
+
+  audio.activeOscillators = [];
+
+  let noteObjects = document.querySelectorAll(
+    "#cantus g.note",
+  ) as NodeListOf<SVGGElement>;
+
+  const layers = document.querySelectorAll("#ctp g.layer");
+
+  const noteLists = Array.from(layers).map((layer) =>
+    layer.querySelectorAll("g.note"),
+  ) as Array<NodeListOf<SVGGElement>>;
+
+  noteLists[0].forEach((note, i) => {
+    audio.activeLitNotes.push(
+      setTimeout(
+        () => (note.style.fill = "var(--color-orange-300)"),
+        i * duration * 1000,
+      ),
+    );
+    audio.activeLitNotes.push(
+      setTimeout(
+        () => (noteLists[1][i].style.fill = "var(--color-orange-300)"),
+        i * duration * 1000,
+      ),
+    );
+    setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
+    setTimeout(
+      () => (noteLists[1][i].style.fill = ""),
+      (i + 1) * duration * 1000,
+    );
+  });
+
+  scheduleFrequencies(audio, frequenciesLower, time, duration);
+  scheduleFrequencies(audio, frequenciesUpper, time, duration);
+}
+
+function scheduleFrequencies(
+  audio: AudioState, // your audio state object
+  frequencies: number[], // array of freqs
+  baseTime: number, // absolute start time
+  duration: number, // duration per note
+) {
+  frequencies.forEach((freq, i) => {
+    const osc = audio.ctx!.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.value = freq;
+
+    const gain = audio.ctx!.createGain();
+    osc.connect(gain);
+    gain.connect(audio.ctx!.destination);
+
+    gain.gain.setValueAtTime(0.06, baseTime + i * duration);
+    gain.gain.linearRampToValueAtTime(0.3, baseTime + i * duration + 0.01);
+    gain.gain.linearRampToValueAtTime(0.06, baseTime + (i + 1) * duration);
+
+    osc.start(baseTime + i * duration);
+    osc.stop(baseTime + (i + 1) * duration);
+
+    // remove oscillator from active list when it ends
+    osc.onended = () => {
+      audio.activeOscillators = audio.activeOscillators.filter(
+        (o) => o !== osc,
+      );
+      if (audio.activeOscillators.length === 0) {
+        audio.playing = false; // playback finished naturally
+      }
+    };
+
+    audio.activeOscillators.push(osc);
   });
 }
