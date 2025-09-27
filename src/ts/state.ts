@@ -15,12 +15,12 @@ export const state = {
 };
 
 export function handleIncrementMode() {
-    state.mode = (state.mode + 1) % 7;
+    state.mode = (state.mode + 6) % 7;
     updateModeLabel();
 }
 
 export function handleDecrementMode() {
-    state.mode = (state.mode + 6) % 7;
+    state.mode = (state.mode + 1) % 7;
     updateModeLabel();
 }
 
