@@ -55,6 +55,7 @@ section.from-right {
 
 .section-button-active {
   background-color: var(--color-stone-500);
+  color: var(--color-orange-200);
 }
 
 @font-face {
