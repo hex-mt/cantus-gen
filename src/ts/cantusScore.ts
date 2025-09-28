@@ -315,12 +315,12 @@ export async function drawCompound() {
                 <layer n="1">`;
 
     state.compound.forEach((p, i) => {
-        if (i % 4 === 0) mei += `<beam>`
+        if (i % 3 === 0) mei += `<beam>`
         mei += `<note pname="${p.letter.toLowerCase()}" oct="${p.octave}" dur="8">`;
         if (p.accidental !== 0)
             mei += `<accid accid="${p.accidental === 1 ? "s" : "f"}" />`;
         mei += `</note>`;
-        if (i % 4 === 3) mei += `</beam>`
+        if (i % 3 === 2) mei += `</beam>`
     });
 
     mei += `</layer>
