@@ -76,6 +76,17 @@ export async function handleClickPlayCtp() {
     }
 }
 
+export async function handleClickPlayCompound() {
+    if (audio.ctx === undefined) initialiseAudio();
+    if (audio.playing) {
+        audio.stop();
+    } else {
+        await audio.ctx!.resume();
+        playCompound();
+        audio.playing = true;
+    }
+}
+
 let gain: GainNode;
 let convolver: ConvolverNode;
 let dryGain: GainNode;
@@ -232,6 +243,30 @@ function playCtp() {
 
     scheduleFrequencies(frequenciesLower, time, duration, -0.66);
     scheduleFrequencies(frequenciesUpper, time, duration, 0.66);
+}
+
+function playCompound() {
+    let frequencies = state.compound.map((p) => audio.freq.toHz(p));
+    const duration = 0.3;
+
+    let time = audio.ctx!.currentTime;
+
+    audio.activeOscillators = [];
+
+    let noteObjects = document.querySelectorAll(
+        "#compound g.note",
+    ) as NodeListOf<SVGGElement>;
+    noteObjects.forEach((note, i) => {
+        audio.activeLitNotes.push(
+            setTimeout(
+                () => (note.style.fill = "var(--color-orange-300)"),
+                i * duration * 1000,
+            ),
+        );
+        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
+    });
+
+    scheduleFrequencies(frequencies, time, duration);
 }
 
 function scheduleFrequencies(

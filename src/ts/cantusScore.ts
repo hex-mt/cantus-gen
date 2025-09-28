@@ -155,8 +155,28 @@ function readCtpArray() {
     return pitches;
 }
 
+function topNote(arr: Pitch[]): Pitch {
+    return arr.reduce((a, c) => {
+        return a.stepsTo(c) < 0 ? a : c;
+    });
+}
+
+function bottomNote(arr: Pitch[]): Pitch {
+    return arr.reduce((a, c) => {
+        return c.stepsTo(a) < 0 ? a : c;
+    });
+}
+
 export async function drawCtp() {
     audio.stop();
+
+    state.ctp = await generateCtp();
+
+    if (state.ctp[0].isEqual(new Pitch(0, 0))) {
+        document.getElementById("ctp")!.innerHTML =
+            `<div class="p-6 my-18 border-orange-100 border-2 text-orange-100 text-xl">No solutions found :(</div>`;
+        return;
+    }
 
     let mei = `<?xml version="1.0" encoding="UTF-8"?>
 <mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1">
@@ -173,26 +193,6 @@ export async function drawCtp() {
       <mdiv>
         <score>
           <scoreDef>`;
-
-    state.ctp = await generateCtp();
-
-    if (state.ctp[0].isEqual(new Pitch(0, 0))) {
-        document.getElementById("ctp")!.innerHTML =
-            `<div class="p-6 my-18 border-orange-100 border-2 text-orange-100 text-xl">No solutions found :(</div>`;
-        return;
-    }
-
-    function topNote(arr: Pitch[]): Pitch {
-        return arr.reduce((a, c) => {
-            return a.stepsTo(c) < 0 ? a : c;
-        });
-    }
-
-    function bottomNote(arr: Pitch[]): Pitch {
-        return arr.reduce((a, c) => {
-            return c.stepsTo(a) < 0 ? a : c;
-        });
-    }
 
     const cantusOnTop = topNote(state.cantus).stepsTo(topNote(state.ctp)) < 0;
 
@@ -265,4 +265,84 @@ export async function drawCtp() {
     const svg = verovio.renderToSVG(1);
 
     document.getElementById("ctp")!.innerHTML = svg;
+
+    drawCompound();
 }
+
+function unfoldCtp() {
+    return state.lowerVoice.flatMap((val, i) => [val, state.upperVoice[i], val]);
+}
+
+export async function drawCompound() {
+    audio.stop();
+
+    if (state.ctp[0].isEqual(new Pitch(0, 0))) {
+        document.getElementById("ctp")!.innerHTML =
+            `<div class="p-6 my-18 border-orange-100 border-2 text-orange-100 text-xl">No solutions found :(</div>`;
+        return;
+    }
+
+    state.compound = unfoldCtp();
+    // for (let i = 0; i < state.compound.length; i++) {
+    //     if (i % 4 === 2) {
+    //         [state.compound[i], state.compound[i + 1]] = [state.compound[i + 1], state.compound[i]];
+    //     }
+    // }
+
+    let mei = `<?xml version="1.0" encoding="UTF-8"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1">
+  <meiHead>
+    <fileDesc>
+      <titleStmt>
+        <title></title>
+      </titleStmt>
+      <pubStmt/>
+    </fileDesc>
+  </meiHead>
+  <music>
+    <body>
+      <mdiv>
+        <score>
+          <scoreDef>
+            <staffGrp symbol="bracket">
+              <staffDef n="1" lines="5" clef.shape="G" clef.line="2" />
+            </staffGrp>
+          </scoreDef>
+          <section>
+            <pb xml:id="jytxbtq" />
+            <measure n="1">
+              <staff n="1">
+                <layer n="1">`;
+
+    state.compound.forEach((p, i) => {
+        if (i % 4 === 0) mei += `<beam>`
+        mei += `<note pname="${p.letter.toLowerCase()}" oct="${p.octave}" dur="8">`;
+        if (p.accidental !== 0)
+            mei += `<accid accid="${p.accidental === 1 ? "s" : "f"}" />`;
+        mei += `</note>`;
+        if (i % 4 === 3) mei += `</beam>`
+    });
+
+    mei += `</layer>
+              </staff>
+            </measure>
+          </section>
+        </score>
+      </mdiv>
+    </body>
+  </music>
+</mei>`;
+    verovio.setOptions({
+        footer: "none",
+        adjustPageWidth: true,
+        adjustPageHeight: true,
+        pageHeight: 120,
+        scale: 50,
+    });
+
+    verovio.loadData(mei);
+    const svg = verovio.renderToSVG(1);
+
+    document.getElementById("compound")!.innerHTML = svg;
+}
+

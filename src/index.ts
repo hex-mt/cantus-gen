@@ -6,8 +6,10 @@ import {
     toggleSolfa,
     showSection,
 } from "./ts/state.js";
-import { handleClickPlay, handleClickPlayCtp, handleClickPlayCtpBottom, handleClickPlayCtpTop } from "./ts/audio.js";
+import { handleClickPlay, handleClickPlayCompound, handleClickPlayCtp, handleClickPlayCtpBottom, handleClickPlayCtpTop } from "./ts/audio.js";
 import { drawCantus, drawCtp } from "./ts/cantusScore.js";
+
+// Cantus controls
 
 const modeInc = document.getElementById("mode-increment")!;
 modeInc.addEventListener("click", handleIncrementMode);
@@ -28,6 +30,8 @@ playButton.addEventListener("click", handleClickPlay);
 const solfaButton = document.getElementById("solfa");
 solfaButton?.addEventListener("click", toggleSolfa);
 
+// Counterpoint controls
+
 const randomiseBothButton = document.getElementById("randomise-both")!;
 randomiseBothButton.addEventListener("click", drawCantus)
 
@@ -43,6 +47,13 @@ playCtpBottomButton.addEventListener("click", handleClickPlayCtpBottom);
 const playCtpButton = document.getElementById("play-ctp")!;
 playCtpButton.addEventListener("click", handleClickPlayCtp);
 
+// Compound controls
+
+const playCompoundButton = document.getElementById("play-compound")!;
+playCompoundButton.addEventListener("click", handleClickPlayCompound);
+
+// Section switching controls
+
 const cantusSection = document.getElementById("section-button-1")!;
 cantusSection.addEventListener("click", () => {
     showSection(1);
@@ -51,6 +62,11 @@ cantusSection.addEventListener("click", () => {
 const ctpSection = document.getElementById("section-button-2")!;
 ctpSection.addEventListener("click", () => {
     showSection(2);
+})
+
+const unfoldSection = document.getElementById("section-button-3")!;
+unfoldSection.addEventListener("click", () => {
+    showSection(3);
 })
 
 showSection(1);

@@ -6,6 +6,7 @@ export const state = {
     repositionedCantus: [] as Pitch[],
     upperVoice: [] as Pitch[],
     lowerVoice: [] as Pitch[],
+    compound: [] as Pitch[],
     mode: 6,
     length: 8,
     modeLabel: document.getElementById("mode-label")!,
@@ -78,21 +79,20 @@ export function showSection(next: number) {
     currButton.classList.remove("section-button-active");
     nextButton.classList.add("section-button-active");
 
-    // Remove only the active class from current
+    // Remove active from current
     currEl.classList.remove("section-active");
-
-    // Animate current out
     currEl.classList.add(forward ? "to-left" : "to-right");
 
-    // Prep next off-screen on correct side
-    nextEl.classList.remove("to-left", "to-right");
+    // Prep next off-screen without animating
+    nextEl.classList.remove("to-left", "to-right", "section-active");
     nextEl.classList.add(forward ? "from-right" : "from-left");
 
-    // Force reflow before activating (so transition happens)
-    requestAnimationFrame(() => {
-        nextEl.classList.remove("from-right", "from-left");
-        nextEl.classList.add("section-active");
-    });
+    // Force reflow to apply staging styles
+    void nextEl.offsetWidth;
+
+    // Now animate in
+    nextEl.classList.remove("from-right", "from-left");
+    nextEl.classList.add("section-active");
 
     state.currentSection = next;
 }
