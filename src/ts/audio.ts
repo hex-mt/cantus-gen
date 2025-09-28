@@ -247,7 +247,7 @@ function playCtp() {
 
 function playCompound() {
     let frequencies = state.compound.map((p) => audio.freq.toHz(p));
-    const duration = 0.3;
+    const duration = 0.2;
 
     let time = audio.ctx!.currentTime;
 
@@ -319,7 +319,9 @@ function setTuningMap(edo: number) {
 }
 
 export function handleSetTuning(edo: number) {
-    document.querySelectorAll("#edo-buttons button").forEach(x => x?.classList.remove("section-button-active"))
+    document
+        .querySelectorAll("#edo-buttons button")
+        .forEach((x) => x?.classList.remove("section-button-active"));
     document.getElementById(`edo-${edo}`)?.classList.add("section-button-active");
     setTuningMap(edo);
 }

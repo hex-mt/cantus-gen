@@ -4,7 +4,7 @@
   "description": "This program generates a cantus firmus roughly in line with the restrictions given in Salzer and Schachter's _Counterpoint in Composition_.",
   "main": "index.js",
   "scripts": {
-    "build": "make && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "dev": "vite",
     "deploy": "gh-pages -d dist",
