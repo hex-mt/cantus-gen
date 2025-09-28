@@ -289,6 +289,22 @@ export async function drawCompound() {
     //     }
     // }
 
+    const top = topNote(state.compound)
+    const bottom = bottomNote(state.compound)
+    let middle = new Pitch((top.w + bottom.w) / 2, (top.h + bottom.h) / 2);
+    let clefIndex = [new Pitch(30, 11), new Pitch(25, 9), new Pitch(21, 8)].reduce((a, c, i) => {
+        const distance = Math.abs(middle.stepsTo(c))
+        if (distance < a.distance)
+            return { index: i, distance: distance };
+        return a;
+    }, { index: -1, distance: 99 });
+    const clef = [
+        `<staffDef n="1" lines="5" clef.shape="G" clef.line="2" />`,
+        `<staffDef n="1" lines="5" clef.shape="G" clef.line="2" clef.dis="8" clef.dis.place="below" />`,
+        `<staffDef n="1" lines="5" clef.shape="F" clef.line="4" />`
+    ][clefIndex.index];
+
+
     let mei = `<?xml version="1.0" encoding="UTF-8"?>
 <mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1">
   <meiHead>
@@ -305,7 +321,7 @@ export async function drawCompound() {
         <score>
           <scoreDef>
             <staffGrp symbol="bracket">
-              <staffDef n="1" lines="5" clef.shape="G" clef.line="2" />
+              ${clef}
             </staffGrp>
           </scoreDef>
           <section>
