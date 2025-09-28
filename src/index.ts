@@ -6,7 +6,7 @@ import {
     toggleSolfa,
     showSection,
 } from "./ts/state.js";
-import { handleClickPlay, handleClickPlayCompound, handleClickPlayCtp, handleClickPlayCtpBottom, handleClickPlayCtpTop } from "./ts/audio.js";
+import { handleClickPlay, handleClickPlayCompound, handleClickPlayCtp, handleClickPlayCtpBottom, handleClickPlayCtpTop, handleSetTuning } from "./ts/audio.js";
 import { drawCantus, drawCtp } from "./ts/cantusScore.js";
 
 // Cantus controls
@@ -52,22 +52,22 @@ playCtpButton.addEventListener("click", handleClickPlayCtp);
 const playCompoundButton = document.getElementById("play-compound")!;
 playCompoundButton.addEventListener("click", handleClickPlayCompound);
 
+// Setting controls
+
+[12, 17, 19, 22, 31, 50, 55].forEach(edo => {
+    document.getElementById(`edo-${edo}`)?.addEventListener("click", () => {
+        handleSetTuning(edo);
+    })
+})
+
 // Section switching controls
 
-const cantusSection = document.getElementById("section-button-1")!;
-cantusSection.addEventListener("click", () => {
-    showSection(1);
-})
-
-const ctpSection = document.getElementById("section-button-2")!;
-ctpSection.addEventListener("click", () => {
-    showSection(2);
-})
-
-const unfoldSection = document.getElementById("section-button-3")!;
-unfoldSection.addEventListener("click", () => {
-    showSection(3);
-})
+for (let i = 1; i <= 4; i++) {
+    document.getElementById(`section-button-${i}`)?.addEventListener("click", () => {
+        showSection(i);
+    })
+}
 
 showSection(1);
+handleSetTuning(31);
 drawCantus();

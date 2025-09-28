@@ -313,3 +313,13 @@ function scheduleFrequencies(
         audio.activeOscillators.push(osc);
     });
 }
+
+function setTuningMap(edo: number) {
+    audio.freq = TuningMap.fromEDO(edo);
+}
+
+export function handleSetTuning(edo: number) {
+    document.querySelectorAll("#edo-buttons button").forEach(x => x?.classList.remove("section-button-active"))
+    document.getElementById(`edo-${edo}`)?.classList.add("section-button-active");
+    setTuningMap(edo);
+}

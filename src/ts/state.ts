@@ -1,4 +1,5 @@
 import type { Pitch } from "meantonal";
+import { drawCantus } from "./cantusScore.js";
 
 export const state = {
     cantus: [] as Pitch[],
@@ -18,11 +19,13 @@ export const state = {
 export function handleIncrementMode() {
     state.mode = (state.mode + 6) % 7;
     updateModeLabel();
+    drawCantus();
 }
 
 export function handleDecrementMode() {
     state.mode = (state.mode + 1) % 7;
     updateModeLabel();
+    drawCantus();
 }
 
 const modes = [
@@ -42,11 +45,13 @@ function updateModeLabel() {
 export function handleIncrementLength() {
     state.length = (state.length + 1) % 9;
     updateLenLabel();
+    drawCantus();
 }
 
 export function handleDecrementLength() {
     state.length = (state.length + 8) % 9;
     updateLenLabel();
+    drawCantus();
 }
 
 function updateLenLabel() {
