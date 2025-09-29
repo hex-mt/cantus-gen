@@ -6,8 +6,8 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>Cantussy</title>
-    <script type="module" crossorigin src="/assets/index-D-cvcWlT.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CFqA3t1Q.css">
+    <script type="module" crossorigin src="/assets/index-C-X5OZVs.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-D1bq3m3F.css">
   </head>
 
   <body class="bg-stone-900 flex flex-col min-h-screen">
@@ -241,7 +241,7 @@
         </div>
       </section>
 
-      <section id="section-4" class="flex items-center gap-8 pt-20">
+      <section id="section-4" class="flex items-center gap-16 pt-32">
         <div class="flex flex-col items-center gap-1">
           <div class="text-sm text-orange-100/50">Equal Temperament:</div>
           <div
@@ -348,6 +348,71 @@
               <option value="200"></option>
               <option value="208"></option>
             </datalist>
+          </div>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="text-sm text-orange-100/50">Waveform</div>
+          <div
+            class="flex bg-stone-800 rounded-full text-orange-100"
+            id="waveform-buttons"
+          >
+            <button
+              id="triangle"
+              class="flex items-center gap-1 px-4 py-4 rounded-full hover:bg-stone-700 active:bg-stone-600 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 94.7 94.6"
+                class="w-6"
+                stroke="currentColor"
+              >
+                <path
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="10"
+                  d="M6 47.3 26.6 6 68 88.6l20.7-41.3"
+                />
+              </svg>
+            </button>
+            <button
+              id="sawtooth"
+              class="flex items-center gap-1 px-4 py-4 rounded-full hover:bg-stone-700 active:bg-stone-600 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 94.7 94.6"
+                class="w-6"
+                stroke="currentColor"
+              >
+                <path
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="10"
+                  d="M6 47.3V6l82.6 82.5V47.3"
+                />
+              </svg>
+            </button>
+            <button
+              id="square"
+              class="flex items-center gap-1 px-4 py-4 rounded-full hover:bg-stone-700 active:bg-stone-600 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 94.7 94.6"
+                class="w-6"
+                stroke="currentColor"
+              >
+                <path
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="10"
+                  d="M6 47.3V6h41.3v82.5h41.3V47.3"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </section>
