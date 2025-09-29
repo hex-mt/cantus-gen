@@ -102,7 +102,7 @@ section.from-right {
   width: 25px; /* Set a specific slider handle width */
   height: 25px; /* Slider handle height */
   background: var(--color-stone-600); /* Green background */
-  border-color: var(--color-orange-200);
+  border-color: var(--color-orange-100);
   cursor: pointer; /* Cursor on hover */
 }
 
@@ -110,6 +110,6 @@ section.from-right {
   width: 25px; /* Set a specific slider handle width */
   height: 25px; /* Slider handle height */
   background: var(--color-stone-600); /* Green background */
-  border-color: var(--color-orange-200);
+  border-color: var(--color-orange-100);
   cursor: pointer; /* Cursor on hover */
 }

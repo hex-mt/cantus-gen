@@ -6,7 +6,7 @@ import {
     toggleSolfa,
     showSection,
 } from "./ts/state.js";
-import { audio, handleClickPlay, handleClickPlayCompound, handleClickPlayCtp, handleClickPlayCtpBottom, handleClickPlayCtpTop, handleSetTuning, handleSetWaveform } from "./ts/audio.js";
+import { audio, setTuning, setWaveform, playCantus, playCompound, playCtp, playCtpBottom, playCtpTop } from "./ts/audio.js";
 import { drawCantus, drawCtp } from "./ts/cantusScore.js";
 
 // Cantus controls
@@ -14,12 +14,12 @@ import { drawCantus, drawCtp } from "./ts/cantusScore.js";
 document.getElementById("mode-increment")!.addEventListener("click", handleIncrementMode);
 document.getElementById("mode-decrement")!.addEventListener("click", handleDecrementMode);
 
-document.getElementById("len-increment")!.addEventListener("click", handleIncrementLength);
-document.getElementById("len-decrement")!.addEventListener("click", handleDecrementLength);
+document.getElementById("length-increment")!.addEventListener("click", handleIncrementLength);
+document.getElementById("length-decrement")!.addEventListener("click", handleDecrementLength);
 
-document.getElementById("randomise")!.addEventListener("click", drawCantus)
+document.getElementById("randomise-cantus")!.addEventListener("click", drawCantus)
 
-document.getElementById("play")!.addEventListener("click", handleClickPlay);
+document.getElementById("play-cantus")!.addEventListener("click", playCantus);
 
 document.getElementById("solfa")!.addEventListener("click", toggleSolfa);
 
@@ -28,33 +28,31 @@ document.getElementById("solfa")!.addEventListener("click", toggleSolfa);
 document.getElementById("randomise-both")!.addEventListener("click", drawCantus)
 document.getElementById("randomise-ctp")!.addEventListener("click", drawCtp);
 
-document.getElementById("play-ctp-top")!.addEventListener("click", handleClickPlayCtpTop);
-document.getElementById("play-ctp-bottom")!.addEventListener("click", handleClickPlayCtpBottom);
-document.getElementById("play-ctp")!.addEventListener("click", handleClickPlayCtp);
+document.getElementById("play-ctp-top")!.addEventListener("click", playCtpTop);
+document.getElementById("play-ctp-bottom")!.addEventListener("click", playCtpBottom);
+document.getElementById("play-ctp")!.addEventListener("click", playCtp);
 
 // Compound controls
 
 const playCompoundButton = document.getElementById("play-compound")!;
-playCompoundButton.addEventListener("click", handleClickPlayCompound);
+playCompoundButton.addEventListener("click", playCompound);
 
 // Setting controls
 
 [12, 19, 31, 50, 55].forEach(edo => {
     document.getElementById(`edo-${edo}`)?.addEventListener("click", () => {
-        handleSetTuning(edo);
+        setTuning(edo);
     })
 })
 
 const bpmValue = document.getElementById("bpm-label")! as HTMLSpanElement;
-const bpmInput = document.getElementById("bpm-slider")! as HTMLInputElement;
-bpmValue.textContent = bpmInput.value;
-bpmInput.addEventListener("input", (event) => {
-    audio.bpm = bpmValue.textContent = event.target!.value;
+document.getElementById("bpm-slider")!.addEventListener("input", (event) => {
+    audio.bpm = bpmValue.textContent = (event.target as HTMLInputElement).value;
 });
 
 ["triangle", "sawtooth", "square"].forEach(waveform => {
     document.getElementById(waveform)?.addEventListener("click", () => {
-        handleSetWaveform(waveform as OscillatorType);
+        setWaveform(waveform as OscillatorType);
     })
 })
 
@@ -67,6 +65,6 @@ for (let i = 1; i <= 4; i++) {
 }
 
 showSection(1);
-handleSetTuning(31);
-handleSetWaveform("triangle");
+setTuning(31);
+setWaveform("triangle");
 drawCantus();

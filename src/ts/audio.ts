@@ -1,11 +1,15 @@
-import { TuningMap } from "meantonal";
+import { Pitch, TuningMap } from "meantonal";
 import { state } from "./state.js";
 
 type AudioState = {
     freq: TuningMap;
-    bpm: number;
+    bpm: string;
     waveform: OscillatorType;
-    ctx: AudioContext | undefined;
+    ctx?: AudioContext;
+    volume?: GainNode;
+    reverb?: ConvolverNode;
+    dryGain?: GainNode;
+    wetGain?: GainNode;
     playing: boolean;
     activeOscillators: OscillatorNode[];
     activeLitNotes: number[];
@@ -14,9 +18,8 @@ type AudioState = {
 
 export const audio: AudioState = {
     freq: TuningMap.fromEDO(31),
-    bpm: 100,
+    bpm: "100",
     waveform: "triangle",
-    ctx: undefined,
     playing: false,
     activeOscillators: [],
     activeLitNotes: [],
@@ -36,70 +39,10 @@ export const audio: AudioState = {
     },
 };
 
-export async function handleClickPlay() {
-    if (audio.ctx === undefined) initialiseAudio();
-    if (audio.playing) {
-        audio.stop();
-    } else {
-        await audio.ctx!.resume();
-        playCantus();
-        audio.playing = true;
-    }
-}
-
-export async function handleClickPlayCtpTop() {
-    if (audio.ctx === undefined) initialiseAudio();
-    if (audio.playing) {
-        audio.stop();
-    } else {
-        await audio.ctx!.resume();
-        playCtpTop();
-        audio.playing = true;
-    }
-}
-
-export async function handleClickPlayCtpBottom() {
-    if (audio.ctx === undefined) initialiseAudio();
-    if (audio.playing) {
-        audio.stop();
-    } else {
-        await audio.ctx!.resume();
-        playCtpBottom();
-        audio.playing = true;
-    }
-}
-
-export async function handleClickPlayCtp() {
-    if (audio.ctx === undefined) initialiseAudio();
-    if (audio.playing) {
-        audio.stop();
-    } else {
-        await audio.ctx!.resume();
-        playCtp();
-        audio.playing = true;
-    }
-}
-
-export async function handleClickPlayCompound() {
-    if (audio.ctx === undefined) initialiseAudio();
-    if (audio.playing) {
-        audio.stop();
-    } else {
-        await audio.ctx!.resume();
-        playCompound();
-        audio.playing = true;
-    }
-}
-
-let gain: GainNode;
-let convolver: ConvolverNode;
-let dryGain: GainNode;
-let wetGain: GainNode;
-
 function initialiseAudio() {
     audio.ctx = new window.AudioContext();
-    gain = audio.ctx.createGain();
-    gain.gain.value = 1;
+    audio.volume = audio.ctx.createGain();
+    audio.volume.gain.value = 1;
 
     function createImpulseResponse(duration = 2, decay = 2) {
         const sampleRate = audio.ctx!.sampleRate;
@@ -114,170 +57,126 @@ function initialiseAudio() {
         return impulse;
     }
 
-    convolver = audio.ctx.createConvolver();
-    convolver.buffer = createImpulseResponse(2, 3);
+    audio.reverb = audio.ctx.createConvolver();
+    audio.reverb.buffer = createImpulseResponse(2, 3);
 
-    dryGain = audio.ctx.createGain();
-    wetGain = audio.ctx.createGain();
+    audio.dryGain = audio.ctx.createGain();
+    audio.wetGain = audio.ctx.createGain();
 
-    dryGain.gain.value = 0.6; // mostly dry
-    wetGain.gain.value = 0.9; // some reverb
+    audio.dryGain.gain.value = 0.6; // mostly dry
+    audio.wetGain.gain.value = 0.9; // some reverb
 
-    gain.connect(dryGain);
-    dryGain.connect(audio.ctx.destination);
+    audio.volume.connect(audio.dryGain);
+    audio.dryGain.connect(audio.ctx.destination);
 
-    gain.connect(convolver);
-    convolver.connect(wetGain);
-    wetGain.connect(audio.ctx.destination);
+    audio.volume.connect(audio.reverb);
+    audio.reverb.connect(audio.wetGain);
+    audio.wetGain.connect(audio.ctx.destination);
 }
 
-function playCantus() {
-    let frequencies = state.repositionedCantus.map((p) => audio.freq.toHz(p));
-    const duration = 60 / audio.bpm;
-
-    let time = audio.ctx!.currentTime;
-
-    audio.activeOscillators = [];
-
-    let noteObjects = document.querySelectorAll(
-        "#cantus g.note",
-    ) as NodeListOf<SVGGElement>;
-    noteObjects.forEach((note, i) => {
-        audio.activeLitNotes.push(
-            setTimeout(
-                () => (note.style.fill = "var(--color-orange-300)"),
-                i * duration * 1000,
-            ),
-        );
-        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
-    });
-
-    scheduleFrequencies(frequencies, time, duration);
+async function readyPlayback() {
+    if (audio.ctx === undefined) initialiseAudio();
+    if (audio.playing) {
+        audio.stop();
+    } else {
+        await audio.ctx!.resume();
+        audio.playing = true;
+        audio.activeOscillators = [];
+    }
 }
 
-function playCtpTop() {
-    let frequenciesUpper = state.upperVoice.map((p) => audio.freq.toHz(p));
-    const duration = 60 / audio.bpm;
 
-    let time = audio.ctx!.currentTime;
+export async function playCantus() {
+    await readyPlayback();
+    if (audio.playing) {
+        let time = audio.ctx!.currentTime;
 
-    audio.activeOscillators = [];
+        let noteObjects = document.querySelectorAll(
+            "#cantus g.note",
+        ) as NodeListOf<SVGGElement>;
 
-    const layers = document.querySelectorAll("#ctp g.layer");
-
-    const noteLists = Array.from(layers).map((layer) =>
-        layer.querySelectorAll("g.note"),
-    ) as Array<NodeListOf<SVGGElement>>;
-
-    noteLists[0].forEach((note, i) => {
-        audio.activeLitNotes.push(
-            setTimeout(
-                () => (note.style.fill = "var(--color-orange-300)"),
-                i * duration * 1000,
-            ),
-        );
-        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
-    });
-
-    scheduleFrequencies(frequenciesUpper, time, duration, 0.66);
+        scheduleFrequencies(state.repositionedCantus, noteObjects, time, 1);
+    }
 }
 
-function playCtpBottom() {
-    let frequenciesLower = state.lowerVoice.map((p) => audio.freq.toHz(p));
-    const duration = 60 / audio.bpm;
+export async function playCtpTop() {
+    await readyPlayback();
+    if (audio.playing) {
+        let time = audio.ctx!.currentTime;
 
-    let time = audio.ctx!.currentTime;
+        const layers = document.querySelectorAll("#ctp g.layer");
 
-    audio.activeOscillators = [];
+        const noteLists = Array.from(layers).map((layer) =>
+            layer.querySelectorAll("g.note"),
+        ) as Array<NodeListOf<SVGGElement>>;
 
-    const layers = document.querySelectorAll("#ctp g.layer");
-
-    const noteLists = Array.from(layers).map((layer) =>
-        layer.querySelectorAll("g.note"),
-    ) as Array<NodeListOf<SVGGElement>>;
-
-    noteLists[1].forEach((note, i) => {
-        audio.activeLitNotes.push(
-            setTimeout(
-                () => (note.style.fill = "var(--color-orange-300)"),
-                i * duration * 1000,
-            ),
-        );
-        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
-    });
-
-    scheduleFrequencies(frequenciesLower, time, duration, 0.66);
+        scheduleFrequencies(state.upperVoice, noteLists[0], time, 1, 0.66);
+    }
 }
 
-function playCtp() {
-    let frequenciesUpper = state.upperVoice.map((p) => audio.freq.toHz(p));
-    let frequenciesLower = state.lowerVoice.map((p) => audio.freq.toHz(p));
-    const duration = 60 / audio.bpm;
+export async function playCtpBottom() {
+    await readyPlayback();
+    if (audio.playing) {
+        let time = audio.ctx!.currentTime;
 
-    let time = audio.ctx!.currentTime;
+        const layers = document.querySelectorAll("#ctp g.layer");
 
-    audio.activeOscillators = [];
+        const noteLists = Array.from(layers).map((layer) =>
+            layer.querySelectorAll("g.note"),
+        ) as Array<NodeListOf<SVGGElement>>;
 
-    const layers = document.querySelectorAll("#ctp g.layer");
-
-    const noteLists = Array.from(layers).map((layer) =>
-        layer.querySelectorAll("g.note"),
-    ) as Array<NodeListOf<SVGGElement>>;
-
-    noteLists[0].forEach((note, i) => {
-        audio.activeLitNotes.push(
-            setTimeout(
-                () => (note.style.fill = "var(--color-orange-300)"),
-                i * duration * 1000,
-            ),
-        );
-        audio.activeLitNotes.push(
-            setTimeout(
-                () => (noteLists[1][i].style.fill = "var(--color-orange-300)"),
-                i * duration * 1000,
-            ),
-        );
-        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
-        setTimeout(
-            () => (noteLists[1][i].style.fill = ""),
-            (i + 1) * duration * 1000,
-        );
-    });
-
-    scheduleFrequencies(frequenciesLower, time, duration, -0.66);
-    scheduleFrequencies(frequenciesUpper, time, duration, 0.66);
+        scheduleFrequencies(state.lowerVoice, noteLists[1], time, 1, 0.66);
+    }
 }
 
-function playCompound() {
-    let frequencies = state.compound.map((p) => audio.freq.toHz(p));
-    const duration = 20 / audio.bpm;
+export async function playCtp() {
+    await readyPlayback();
+    if (audio.playing) {
+        let time = audio.ctx!.currentTime;
 
-    let time = audio.ctx!.currentTime;
+        const layers = document.querySelectorAll("#ctp g.layer");
+        const noteLists = Array.from(layers).map((layer) =>
+            layer.querySelectorAll("g.note"),
+        ) as Array<NodeListOf<SVGGElement>>;
 
-    audio.activeOscillators = [];
+        scheduleFrequencies(state.upperVoice, noteLists[0], time, 1, -0.66);
+        scheduleFrequencies(state.lowerVoice, noteLists[1], time, 1, 0.66);
+    }
+}
 
-    let noteObjects = document.querySelectorAll(
-        "#compound g.note",
-    ) as NodeListOf<SVGGElement>;
-    noteObjects.forEach((note, i) => {
-        audio.activeLitNotes.push(
-            setTimeout(
-                () => (note.style.fill = "var(--color-orange-300)"),
-                i * duration * 1000,
-            ),
-        );
-        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
-    });
+export async function playCompound() {
+    await readyPlayback();
+    if (audio.playing) {
+        let time = audio.ctx!.currentTime;
 
-    scheduleFrequencies(frequencies, time, duration);
+        let noteObjects = document.querySelectorAll(
+            "#compound g.note",
+        ) as NodeListOf<SVGGElement>;
+
+        scheduleFrequencies(state.compound, noteObjects, time, 1 / 3);
+    }
 }
 
 function scheduleFrequencies(
-    frequencies: number[],
+    pitches: Pitch[],
+    noteObjects: NodeListOf<SVGGElement>,
     baseTime: number,
-    duration: number,
+    noteLength: number,
     pan: number = 0,
 ) {
+    const duration = noteLength * 60 / (audio.bpm as unknown as number);
+
+    noteObjects.forEach((note, i) => {
+        audio.activeLitNotes.push(
+            setTimeout(
+                () => (note.style.fill = "var(--color-orange-300)"),
+                i * duration * 1000,
+            ),
+        );
+        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
+    });
+
+    const frequencies = pitches.map((p) => audio.freq.toHz(p));
     frequencies.forEach((freq, i) => {
         const osc = audio.ctx!.createOscillator();
         osc.type = audio.waveform;
@@ -293,7 +192,7 @@ function scheduleFrequencies(
         // connect chain: osc → noteGain → panner → global gain
         osc.connect(noteGain);
         noteGain.connect(panner);
-        panner.connect(gain); // "gain" is the one from initialiseAudio
+        panner.connect(audio.volume!); // "gain" is the one from initialiseAudio
 
         // envelope
         noteGain.gain.setValueAtTime(0.06, baseTime + i * duration);
@@ -321,7 +220,7 @@ function setTuningMap(edo: number) {
     audio.freq = TuningMap.fromEDO(edo);
 }
 
-export function handleSetTuning(edo: number) {
+export function setTuning(edo: number) {
     document
         .querySelectorAll("#edo-buttons button")
         .forEach((x) => x?.classList.remove("section-button-active"));
@@ -329,7 +228,7 @@ export function handleSetTuning(edo: number) {
     setTuningMap(edo);
 }
 
-export function handleSetWaveform(waveform: OscillatorType) {
+export function setWaveform(waveform: OscillatorType) {
     document
         .querySelectorAll("#waveform-buttons button")
         .forEach((x) => x?.classList.remove("section-button-active"));
