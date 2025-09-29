@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Monsieur La Doulaise";
+  src: url("/fonts/monsieur-la-doulaise.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-fancy: "Monsieur La Doulaise", sans-serif;
+}
+
 svg.definition-scale {
   fill: var(--color-orange-100);
   color: var(--color-orange-100);
@@ -61,14 +73,43 @@ section.from-right {
   color: var(--color-orange-200);
 }
 
-@font-face {
-  font-family: "Monsieur La Doulaise";
-  src: url("/fonts/monsieur-la-doulaise.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+.slidecontainer {
+  width: 100%; /* Width of the outside container */
 }
 
-@theme {
-  --font-fancy: "Monsieur La Doulaise", sans-serif;
+/* The slider itself */
+.slider {
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 10px; /* Specified height */
+  background: var(--color-stone-700); /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
+  transition: opacity 0.2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: var(--color-stone-600); /* Green background */
+  border-color: var(--color-orange-200);
+  cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: var(--color-stone-600); /* Green background */
+  border-color: var(--color-orange-200);
+  cursor: pointer; /* Cursor on hover */
 }

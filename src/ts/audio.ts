@@ -3,6 +3,7 @@ import { state } from "./state.js";
 
 type AudioState = {
     freq: TuningMap;
+    bpm: number;
     ctx: AudioContext | undefined;
     playing: boolean;
     activeOscillators: OscillatorNode[];
@@ -12,6 +13,7 @@ type AudioState = {
 
 export const audio: AudioState = {
     freq: TuningMap.fromEDO(31),
+    bpm: 100,
     ctx: undefined,
     playing: false,
     activeOscillators: [],
@@ -116,7 +118,6 @@ function initialiseAudio() {
     dryGain = audio.ctx.createGain();
     wetGain = audio.ctx.createGain();
 
-    // set wet/dry balance
     dryGain.gain.value = 0.6; // mostly dry
     wetGain.gain.value = 0.9; // some reverb
 
@@ -130,7 +131,7 @@ function initialiseAudio() {
 
 function playCantus() {
     let frequencies = state.repositionedCantus.map((p) => audio.freq.toHz(p));
-    const duration = 0.5;
+    const duration = 60 / audio.bpm;
 
     let time = audio.ctx!.currentTime;
 
@@ -154,7 +155,7 @@ function playCantus() {
 
 function playCtpTop() {
     let frequenciesUpper = state.upperVoice.map((p) => audio.freq.toHz(p));
-    const duration = 0.75;
+    const duration = 60 / audio.bpm;
 
     let time = audio.ctx!.currentTime;
 
@@ -181,7 +182,7 @@ function playCtpTop() {
 
 function playCtpBottom() {
     let frequenciesLower = state.lowerVoice.map((p) => audio.freq.toHz(p));
-    const duration = 0.75;
+    const duration = 60 / audio.bpm;
 
     let time = audio.ctx!.currentTime;
 
@@ -209,7 +210,7 @@ function playCtpBottom() {
 function playCtp() {
     let frequenciesUpper = state.upperVoice.map((p) => audio.freq.toHz(p));
     let frequenciesLower = state.lowerVoice.map((p) => audio.freq.toHz(p));
-    const duration = 0.75;
+    const duration = 60 / audio.bpm;
 
     let time = audio.ctx!.currentTime;
 
@@ -247,7 +248,7 @@ function playCtp() {
 
 function playCompound() {
     let frequencies = state.compound.map((p) => audio.freq.toHz(p));
-    const duration = 0.2;
+    const duration = 20 / audio.bpm;
 
     let time = audio.ctx!.currentTime;
 
@@ -270,9 +271,9 @@ function playCompound() {
 }
 
 function scheduleFrequencies(
-    frequencies: number[], // array of freqs
-    baseTime: number, // absolute start time
-    duration: number, // duration per note
+    frequencies: number[],
+    baseTime: number,
+    duration: number,
     pan: number = 0,
 ) {
     frequencies.forEach((freq, i) => {

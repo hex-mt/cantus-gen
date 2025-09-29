@@ -240,7 +240,7 @@
         </div>
       </section>
 
-      <section id="section-4" class="flex flex-col items-center gap-8 pt-20">
+      <section id="section-4" class="flex items-center gap-8 pt-20">
         <div class="flex flex-col items-center gap-1">
           <div class="text-sm text-orange-100/50">Equal Temperament:</div>
           <div
@@ -254,22 +254,10 @@
               12
             </button>
             <button
-              id="edo-17"
-              class="flex items-center gap-1 px-4 py-4 rounded-full hover:bg-stone-700 active:bg-stone-600 transition-colors"
-            >
-              17
-            </button>
-            <button
               id="edo-19"
               class="flex items-center gap-1 px-4 py-4 rounded-full hover:bg-stone-700 active:bg-stone-600 transition-colors"
             >
               19
-            </button>
-            <button
-              id="edo-22"
-              class="flex items-center gap-1 px-4 py-4 rounded-full hover:bg-stone-700 active:bg-stone-600 transition-colors"
-            >
-              22
             </button>
             <button
               id="edo-31"
@@ -290,6 +278,34 @@
               55
             </button>
           </div>
+        </div>
+        <div class="flex flex-col gap-2 items-center justify-center">
+            <div class="flex">
+                <div class="w-8 fill-orange-100">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 86.9 132" ><path d="M29.3 0 9.5 86.4h20.3c1.6-4.1 5.2-7.1 9.5-7.9V66h-.1a2 2 0 1 1 0-3.8V49.3a2 2 0 1 1 0-3.8V32.8a2 2 0 1 1 0-3.9V16.2a2 2 0 1 1 0-3.8V8h4.4v4.4h.1a2 2 0 1 1 0 3.8v12.7a2 2 0 1 1 0 3.9v12.7a2 2 0 1 1 0 3.8v12.8a2 2 0 1 1 0 3.8v12.6h.2l19.8-34.3L53.7 0zm55.6 13.6a2 2 0 0 0-1.8 1l-2.8 4.8L78 18l-5 11 1.4.8-34.6 60a2 2 0 0 0 .8 2.7 2 2 0 0 0 1.2.2 2 2 0 0 0 1-.4 2 2 0 0 0 .3-.3 2 2 0 0 0 .2-.3l34.6-59.9 1.5.9 7-10-2.5-1.3 2.8-4.8a2 2 0 0 0-.7-2.8 2 2 0 0 0-1-.2zm-18.5 42-15.6 27c1 1 1.7 2.4 2.3 3.8h20.3zm-25 26.8a8.4 8.4 0 0 0-8.3 8.3 8.4 8.4 0 0 0 8.4 8.4 8.4 8.4 0 0 0 8.3-8.4 8.4 8.4 0 0 0-1.2-4.3l-3.7 6.3a4 4 0 0 1-5.4 1.5 4 4 0 0 1-1.5-5.5l3.7-6.3a8.4 8.4 0 0 0-.2 0zM7.6 95 0 128v4h8.3v-4h66.3v4H83v-4l-7.5-33H53a12.4 12.4 0 0 1-23.3 0z""/></svg>
+                </div>
+                <div
+                  class="flex flex-col items-center text-orange-100 text-2xl w-32"
+                >
+                  <div class="text-sm text-orange-100/50">BPM:</div>
+                  <span id="bpm-label">80</span>
+                </div>
+            </div>
+            <div class="appearance-none accent-orange-200">
+                <input class="slider" type="range" list="tickmarks" min="40" max="208" value="80" step="2" id="bpm-slider">
+                <datalist id="tickmarks">
+                    <option value="40"></option><option value="42"></option><option value="44"></option><option value="46"></option>
+                    <option value="48"></option><option value="50"></option><option value="52"></option><option value="54"></option>
+                    <option value="56"></option><option value="58"></option><option value="60"></option><option value="63"></option>
+                    <option value="66"></option><option value="69"></option><option value="72"></option><option value="76"></option>
+                    <option value="80"></option><option value="84"></option><option value="88"></option><option value="92"></option>
+                    <option value="96"></option><option value="100"></option><option value="104"></option><option value="108"></option>
+                    <option value="112"></option><option value="116"></option><option value="120"></option><option value="126"></option>
+                    <option value="132"></option><option value="138"></option><option value="144"></option><option value="152"></option>
+                    <option value="160"></option><option value="168"></option><option value="176"></option><option value="184"></option>
+                    <option value="192"></option><option value="200"></option><option value="208"></option>
+                </datalist>
+            </div>
         </div>
       </section>
 
