@@ -4,6 +4,7 @@ import { state } from "./state.js";
 type AudioState = {
     freq: TuningMap;
     bpm: number;
+    waveform: OscillatorType;
     ctx: AudioContext | undefined;
     playing: boolean;
     activeOscillators: OscillatorNode[];
@@ -14,6 +15,7 @@ type AudioState = {
 export const audio: AudioState = {
     freq: TuningMap.fromEDO(31),
     bpm: 100,
+    waveform: "triangle",
     ctx: undefined,
     playing: false,
     activeOscillators: [],
@@ -278,7 +280,7 @@ function scheduleFrequencies(
 ) {
     frequencies.forEach((freq, i) => {
         const osc = audio.ctx!.createOscillator();
-        osc.type = "triangle";
+        osc.type = audio.waveform;
         osc.frequency.value = freq;
 
         // per-note nodes
@@ -325,4 +327,12 @@ export function handleSetTuning(edo: number) {
         .forEach((x) => x?.classList.remove("section-button-active"));
     document.getElementById(`edo-${edo}`)?.classList.add("section-button-active");
     setTuningMap(edo);
+}
+
+export function handleSetWaveform(waveform: OscillatorType) {
+    document
+        .querySelectorAll("#waveform-buttons button")
+        .forEach((x) => x?.classList.remove("section-button-active"));
+    document.getElementById(waveform)?.classList.add("section-button-active");
+    audio.waveform = waveform;
 }

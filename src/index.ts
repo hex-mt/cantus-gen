@@ -6,7 +6,7 @@ import {
     toggleSolfa,
     showSection,
 } from "./ts/state.js";
-import { audio, handleClickPlay, handleClickPlayCompound, handleClickPlayCtp, handleClickPlayCtpBottom, handleClickPlayCtpTop, handleSetTuning } from "./ts/audio.js";
+import { audio, handleClickPlay, handleClickPlayCompound, handleClickPlayCtp, handleClickPlayCtpBottom, handleClickPlayCtpTop, handleSetTuning, handleSetWaveform } from "./ts/audio.js";
 import { drawCantus, drawCtp } from "./ts/cantusScore.js";
 
 // Cantus controls
@@ -52,6 +52,12 @@ bpmInput.addEventListener("input", (event) => {
     audio.bpm = bpmValue.textContent = event.target!.value;
 });
 
+["triangle", "sawtooth", "square"].forEach(waveform => {
+    document.getElementById(waveform)?.addEventListener("click", () => {
+        handleSetWaveform(waveform as OscillatorType);
+    })
+})
+
 // Section switching controls
 
 for (let i = 1; i <= 4; i++) {
@@ -62,4 +68,5 @@ for (let i = 1; i <= 4; i++) {
 
 showSection(1);
 handleSetTuning(31);
+handleSetWaveform("triangle");
 drawCantus();
