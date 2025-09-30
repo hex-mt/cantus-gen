@@ -1,4 +1,5 @@
 import {
+    state,
     handleDecrementMode,
     handleIncrementMode,
     handleDecrementLength,
@@ -7,7 +8,10 @@ import {
     showSection,
 } from "./ts/state.js";
 import { audio, setTuning, setWaveform, playCantus, playCompound, playCtp, playCtpBottom, playCtpTop } from "./ts/audio.js";
-import { drawCantus, drawCtp } from "./ts/cantusScore.js";
+import { drawCantus } from "./ts/cantusScore.js";
+import createVerovioModule from "verovio/wasm";
+import { VerovioToolkit } from "verovio/esm";
+import { drawCtp } from "./ts/speciesScore.js";
 
 // Cantus controls
 
@@ -63,6 +67,11 @@ for (let i = 1; i <= 4; i++) {
         showSection(i);
     })
 }
+
+// State initialisation
+
+const VerovioModule = await createVerovioModule();
+state.verovio = new VerovioToolkit(VerovioModule);
 
 showSection(1);
 setTuning(31);

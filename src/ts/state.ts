@@ -1,5 +1,6 @@
 import type { Pitch } from "meantonal";
 import { drawCantus } from "./cantusScore.js";
+import { VerovioToolkit } from "verovio/esm";
 
 export const state = {
     cantus: [] as Pitch[],
@@ -14,6 +15,11 @@ export const state = {
     lenLabel: document.getElementById("len-label")!,
     solfa: false,
     currentSection: 2,
+    verovio: undefined as unknown as VerovioToolkit,
+    wasm: undefined as any,
+    actualMode: 0,
+    tonicLetter: "",
+    actualLength: 0,
 };
 
 export function handleIncrementMode() {
