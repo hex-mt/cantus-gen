@@ -6,21 +6,61 @@
 #define STEP_LIMIT 5
 #define IMP_LIMIT 3
 
-typedef struct ctp_state {
-    Interval cantus_motions[LIMIT - 1];
-    Interval ints[LIMIT];
-    Pitch notes[LIMIT];
-    Interval motions[LIMIT - 1];
-    int leaps[LIMIT - 1];
-    int steps[LIMIT - 1];
-} ctp_state;
+typedef struct {
+    Pitch top;
+    Pitch bottom;
+    int bar;
+    bool repeated_climax;
+    bool disconnected_climax;
+} CtpState;
 
 extern Pitch mt_cantus[32];
-extern Pitch cantus_motions[32];
+extern Interval cantus_motions[32];
 extern Pitch mt_ctp[32];
+extern Interval ctp_motions[32];
+extern Interval v_ints[32];
+extern TonalContext context;
+extern Pitch tonic;
 
-void next_chunk(ctp_state *c, int length, int left);
+extern Pitch result_ctp[32];
+extern int solutions;
 
-int check_adjacent(ctp_state *c, int index);
+void next_chunk(CtpState state);
+
+static inline bool ctp_complete(CtpState *state) {
+    return state->bar == BARS - 1;
+}
+
+static inline bool bad_ctp_climax(Pitch climax) {
+    return intervals_equal(interval_between(climax, tonic), (Interval){0, 1});
+}
+
+static inline bool ctp_climax_good(CtpState *state) {
+    return !state->repeated_climax && !bad_ctp_climax(state->top) &&
+           !state->disconnected_climax;
+}
+
+static inline int bars_remaining(CtpState *state) {
+    return BARS - state->bar - 1;
+}
+
+static inline bool is_subtonic(Pitch p) {
+    return (MODE - 1) - pitch_chroma(p) == 2;
+}
+
+static inline bool is_leading_tone(Pitch p) {
+    return pitch_chroma(p) - (MODE - 1) == 5;
+}
+
+static inline bool ctp_bad_penultima(CtpState *state, Pitch this_note) {
+    if (MODE == 5 && !is_subtonic(this_note)) {
+        return true;
+    }
+    if (!is_leading_tone(this_note))
+        return true;
+    return false;
+}
+
+static inline bool is_tonic(Pitch p) { return pitch_chroma(p) == MODE - 1; }
 
 #endif

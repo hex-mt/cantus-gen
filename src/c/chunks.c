@@ -50,7 +50,6 @@ chunk_node *create_chunk(void) {
 }
 
 void generate_chunks(void) {
-    // int count = 0;
     for (int i = 0; i < MELODIC_INDEX_COUNT; i++) {
         for (int j = 0; j < HARMONIC_INDEX_COUNT; j++) {
             for (int k = 0; k < HARMONIC_INDEX_COUNT; k++) {
@@ -100,20 +99,11 @@ void generate_chunks(void) {
                     if (intervals_equal(secondMotion, motions[m])) {
                         add_chunk(motions[i], consonances[j],
                                   (chunk){consonances[k], secondMotion});
-                        // count++;
-                        // char bufi[8], bufj[8], bufk[8], bufl[8];
-                        // interval_name(motions[i], bufi);
-                        // interval_name(consonances[j], bufj);
-                        // interval_name(consonances[k], bufk);
-                        // interval_name(secondMotion, bufl);
-                        // printf("add_chunk(%s, %s, (chunk){%s, %s});\n", bufi,
-                        //        bufj, bufk, bufl);
                     }
                 }
             }
         }
     }
-    // printf("%d\n", count);
 }
 
 int map_melodic_index(Interval m) {

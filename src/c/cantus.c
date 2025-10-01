@@ -34,12 +34,14 @@ int generate_cantus(int mode, int length) {
         initialised = true;
     }
 
-    try_note((State){.top = 1, .bar = 1, .since_turn = 1});
+    try_note((CantusState){.top = 1, .bar = 1, .since_turn = 1});
 
     return 0;
 }
 
-void try_note(State state) {
+void try_note(CantusState state) {
+    if (cantus_success)
+        return;
     if (cantus_complete(&state)) {
         if (climax_good(&state)) {
             cantus_success = true;
@@ -162,19 +164,19 @@ void try_note(State state) {
         else if (must_fill)
             continue;
         // construct a new state object and recursively try the next note.
-        try_note((State){.top = max(state.top, this_note),
-                         .bottom = min(state.bottom, this_note),
-                         .bar = state.bar + 1,
-                         .repeated_climax = repeated,
-                         .disconnected_climax = disconnected_climax,
-                         .leaps_total = leaps_total,
-                         .leaps_large = leaps_large,
-                         .leaps_in_row = leaps_in_row,
-                         .prev_motion = this_motion,
-                         .since_turn = since_turn,
-                         .prev_turn = new_turn,
-                         .must_fill = must_fill,
-                         .to_fill = must_fill ? to_fill : NULL});
+        try_note((CantusState){.top = max(state.top, this_note),
+                               .bottom = min(state.bottom, this_note),
+                               .bar = state.bar + 1,
+                               .repeated_climax = repeated,
+                               .disconnected_climax = disconnected_climax,
+                               .leaps_total = leaps_total,
+                               .leaps_large = leaps_large,
+                               .leaps_in_row = leaps_in_row,
+                               .prev_motion = this_motion,
+                               .since_turn = since_turn,
+                               .prev_turn = new_turn,
+                               .must_fill = must_fill,
+                               .to_fill = must_fill ? to_fill : NULL});
     }
 }
 

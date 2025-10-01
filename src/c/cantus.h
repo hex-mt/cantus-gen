@@ -32,16 +32,16 @@ typedef struct {
     int since_turn;
     bool must_fill;
     int *to_fill;
-} State;
+} CantusState;
 
 void initialise_env(void);
 int generate_cantus(int mode, int length);
 
-void try_note(State range);
+void try_note(CantusState range);
 
 int get_cantus_value(int i);
 
-static inline bool cantus_complete(State *state) {
+static inline bool cantus_complete(CantusState *state) {
     return state->bar == BARS - 1;
 }
 
@@ -49,7 +49,7 @@ static inline bool bad_climax(int climax) {
     return climax == 6 && (MODE == MAJOR || MODE == LYDIAN);
 }
 
-static inline bool climax_good(State *state) {
+static inline bool climax_good(CantusState *state) {
     return !state->repeated_climax && !bad_climax(state->top) &&
            !state->disconnected_climax;
 }
@@ -71,7 +71,7 @@ static void print_cantus(void) {
     printf("\n");
 }
 
-static inline int create_range(const State *s, int *out) {
+static inline int create_range(const CantusState *s, int *out) {
     int top = s->bottom + 9;
     if (bad_climax(top))
         top--;
@@ -88,7 +88,7 @@ static inline int create_range(const State *s, int *out) {
     return range;
 }
 
-static inline void shuffle(int a[], int length, State *state) {
+static inline void shuffle(int a[], int length, CantusState *state) {
     for (int i = 0; i < length; i++) {
         int s = rand() % (length - i) + i;
         int temp = a[i];
@@ -122,9 +122,11 @@ static inline void shuffle(int a[], int length, State *state) {
     }
 }
 
-static inline bool in_cadence(State *state) { return state->bar >= BARS - 2; }
+static inline bool in_cadence(CantusState *state) {
+    return state->bar >= BARS - 2;
+}
 
-static inline int get_next_note(State *state, int to_try) {
+static inline int get_next_note(CantusState *state, int to_try) {
     if (in_cadence(state))
         return cantus[state->bar];
     else {
@@ -150,7 +152,7 @@ static inline int get_upper_boundary(int to_fill[18]) {
     return 0;
 }
 
-static inline bool registral_break(State *state, bool *must_fill,
+static inline bool registral_break(CantusState *state, bool *must_fill,
                                    int to_fill[18], int this_note,
                                    int prev_note, int this_motion) {
     if (*must_fill) {
@@ -184,16 +186,16 @@ static inline bool registral_break(State *state, bool *must_fill,
     return false;
 }
 
-static inline bool large_unrecovered_leap(State *state, int this_motion) {
+static inline bool large_unrecovered_leap(CantusState *state, int this_motion) {
     return abs(state->prev_motion) > 3 &&
            (same_sign(state->prev_motion, this_motion) || abs(this_motion) > 3);
 }
 
-static inline bool repeated_note(State *state, int this_note) {
+static inline bool repeated_note(CantusState *state, int this_note) {
     return cantus[state->bar - 1] == this_note;
 }
 
-static inline bool climax_disconnected(State *state, int this_motion) {
+static inline bool climax_disconnected(CantusState *state, int this_motion) {
     return cantus[state->bar - 1] == state->top &&
            abs(state->prev_motion) > 1 && abs(this_motion) > 1;
 }
@@ -211,7 +213,7 @@ static inline bool tritone_between(int p, int q) {
            ((p == FA || p == FA - 7) && (q == MI || q == MI - 7));
 }
 
-static inline int update_leaps_total(State *state, int this_motion) {
+static inline int update_leaps_total(CantusState *state, int this_motion) {
     return abs(this_motion) > 1 ? state->leaps_total + 1 : state->leaps_total;
 }
 
@@ -219,7 +221,7 @@ static inline bool too_many_leaps(int leaps_total) {
     return (float)leaps_total > ((double)(BARS) / 4);
 }
 
-static inline int update_leaps_large(State *state, int this_motion) {
+static inline int update_leaps_large(CantusState *state, int this_motion) {
     return abs(this_motion) > 3 ? state->leaps_large + 1 : state->leaps_large;
 }
 
@@ -227,21 +229,21 @@ static inline bool too_many_large_leaps(int leaps_large) {
     return leaps_large > 2;
 }
 
-static inline bool steps_past_arpeggio(State *state, int this_motion) {
+static inline bool steps_past_arpeggio(CantusState *state, int this_motion) {
     return state->leaps_in_row == 2 && state->since_turn > 1 &&
            same_sign(state->prev_motion, this_motion);
 }
 
-static inline bool arpeggio_past_step(State *state, int this_motion) {
+static inline bool arpeggio_past_step(CantusState *state, int this_motion) {
     return state->leaps_in_row == 1 && state->since_turn > 1 &&
            same_sign(state->prev_motion, this_motion) && abs(this_motion) > 1;
 }
 
-static inline bool large_leap_past_step(State *state, int this_motion) {
+static inline bool large_leap_past_step(CantusState *state, int this_motion) {
     return (abs(this_motion) > 3 && same_sign(state->prev_motion, this_motion));
 }
 
-static inline int update_leaps_in_row(State *state, int this_motion) {
+static inline int update_leaps_in_row(CantusState *state, int this_motion) {
     return abs(this_motion) > 1 ? state->leaps_in_row + 1 : 0;
 }
 
@@ -249,7 +251,7 @@ static inline bool too_many_leaps_in_row(int leaps_in_row) {
     return leaps_in_row > 2;
 }
 
-static inline bool bad_consecutive_leaps(State *state, int this_motion) {
+static inline bool bad_consecutive_leaps(CantusState *state, int this_motion) {
     if ((state->prev_motion == 2) && (this_motion > 3))
         return true;
     if ((state->prev_motion == 3) && (abs(this_motion) > 2))
@@ -263,25 +265,25 @@ static inline bool bad_consecutive_leaps(State *state, int this_motion) {
     return false;
 }
 
-static inline bool new_climax(State *state, int this_note) {
+static inline bool new_climax(CantusState *state, int this_note) {
     return this_note > state->top;
 }
 
 static inline bool cannot_surpass(int range) { return range == 10; }
 
-static inline bool repeat_climax(State *state, int this_note) {
+static inline bool repeat_climax(CantusState *state, int this_note) {
     return this_note == state->top;
 }
 
-static inline bool same_direction(State *state, int this_motion) {
+static inline bool same_direction(CantusState *state, int this_motion) {
     return same_sign(state->prev_motion, this_motion);
 }
 
-static inline bool should_change_direction(State *state) {
+static inline bool should_change_direction(CantusState *state) {
     return state->since_turn == 3;
 }
 
-static inline bool dissonant_outline(State *state, int prev_note) {
+static inline bool dissonant_outline(CantusState *state, int prev_note) {
     int outline = abs(state->prev_turn - prev_note);
     if (outline == 6 || outline == 8)
         return true;
@@ -290,7 +292,7 @@ static inline bool dissonant_outline(State *state, int prev_note) {
     return false;
 }
 
-static inline bool tritone_in_gesture(State *state, int since_turn,
+static inline bool tritone_in_gesture(CantusState *state, int since_turn,
                                       int this_note) {
     if (since_turn > 1) {
         if (tritone_between(this_note, cantus[state->bar - 2])) {
@@ -308,7 +310,7 @@ static inline bool tritone_in_gesture(State *state, int since_turn,
     return false;
 }
 
-static inline bool noodling(State *state, int this_note) {
+static inline bool noodling(CantusState *state, int this_note) {
     if ((state->bar >= 3 && this_note == cantus[state->bar - 2]) &&
         (cantus[state->bar - 1] == cantus[state->bar - 3]))
         return true;
@@ -318,7 +320,7 @@ static inline bool noodling(State *state, int this_note) {
     return false;
 }
 
-static inline bool overemphasised_tone(State *state, int this_note) {
+static inline bool overemphasised_tone(CantusState *state, int this_note) {
     int count = 0;
     if (this_note == 0)
         count++;
@@ -332,7 +334,7 @@ static inline bool overemphasised_tone(State *state, int this_note) {
     return false;
 }
 
-static inline bool bad_cadence_approach(State *state, int this_note,
+static inline bool bad_cadence_approach(CantusState *state, int this_note,
                                         int this_motion, int leaps_in_row) {
     if (state->bar == BARS - 2 && (this_motion < -3 || leaps_in_row == 2))
         return true;
