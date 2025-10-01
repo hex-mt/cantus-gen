@@ -176,7 +176,29 @@ void shuffle_list(chunk_node **head) {
         arr[j] = tmp;
     }
 
-    // Step 3: re-link nodes in shuffled order
+    // Step 3: counteract bias towards "early spending" of leaps
+    // by strongly preferencing steps as first choices
+    int s = rand() % 5;
+    if (s > 1) {
+        for (int i = 0; i < n - 1; i++) {
+            if (abs(stepspan(arr[i]->data.motion)) == 1) {
+                chunk_node *tmp = arr[i];
+                arr[i] = arr[0];
+                arr[0] = tmp;
+                break;
+            }
+        }
+        for (int i = 1; i < n - 1; i++) {
+            if (abs(stepspan(arr[i]->data.motion)) == 1) {
+                chunk_node *tmp = arr[i];
+                arr[i] = arr[1];
+                arr[1] = tmp;
+                break;
+            }
+        }
+    }
+
+    // Step 4: re-link nodes in shuffled order
     for (int i = 0; i < n - 1; i++) {
         arr[i]->next = arr[i + 1];
     }

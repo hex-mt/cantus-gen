@@ -46,6 +46,15 @@ export async function drawCtp() {
     );
   }
 
+  if (Pitch.highest(state.upperVoice).stepsTo(new Pitch(35, 14)) < 0) {
+    state.upperVoice = state.upperVoice.map((p) =>
+      p.transposeReal(new Interval(-5, -2)),
+    );
+    state.lowerVoice = state.lowerVoice.map((p) =>
+      p.transposeReal(new Interval(-5, -2)),
+    );
+  }
+
   let lowerClef;
 
   if (Pitch.lowest(state.lowerVoice).stepsTo(new Pitch(24, 9)) > 0)

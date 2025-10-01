@@ -218,7 +218,7 @@ static inline int update_leaps_total(CantusState *state, int this_motion) {
 }
 
 static inline bool too_many_leaps(int leaps_total) {
-    return (float)leaps_total > ((double)(BARS) / 4);
+    return (double)leaps_total > ((double)(BARS) / 4);
 }
 
 static inline int update_leaps_large(CantusState *state, int this_motion) {

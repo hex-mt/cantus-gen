@@ -16,6 +16,7 @@ Interval ctp_motions[32] = {0};
 Interval v_ints[32] = {0};
 TonalContext context;
 Pitch tonic;
+TuningMap T;
 
 Pitch result_ctp[32] = {0};
 int solutions = 0;
@@ -35,6 +36,8 @@ void generate_ctp(void) {
         v_ints[i] = (Interval){0, 0};
     }
     generate_chunks();
+
+    T = tuning_map_from_edo(12, (Pitch){29, 11}, 440);
 
     // cantus data init
     context = context_from_chroma(MODE - 1, MODE);
@@ -80,13 +83,62 @@ void next_chunk(CtpState state) {
     bool first_chunk = true;
     for (chunk_node *cur = cloned_chunks; cur != NULL; cur = cur->next) {
         Interval this_int = cur->data.cons;
-        Pitch this_note = transpose_real(mt_cantus[state.bar], this_int);
+
+        Pitch this_note;
         Pitch prev_note = mt_ctp[state.bar - 1];
-        v_ints[state.bar] = this_int;
-        mt_ctp[state.bar] = this_note;
+        if (bars_remaining(&state) == 0)
+            this_note = transpose_diatonic(mt_ctp[state.bar - 1], 1, context);
+        else
+            this_note = transpose_real(mt_cantus[state.bar], this_int);
+
+        Interval this_motion = interval_between(prev_note, this_note);
+
+        Pitch top = pitch_highest((Pitch[]){this_note, state.top}, 2, T);
+        Pitch bottom = pitch_lowest((Pitch[]){this_note, state.bottom}, 2, T);
+        int range = stepspan(interval_between(bottom, top));
+
+        if (range > 9)
+            continue;
+
+        if (consecutive_ties(&state, this_note, prev_note))
+            continue;
+
+        int ties = update_ties(&state, this_motion);
+        if (too_many_ties(ties))
+            continue;
+
+        int imps_in_row = update_imps(&state, this_int);
+        if (too_many_imps_in_row(imps_in_row))
+            continue;
+
+        int leaps_total = ctp_update_leaps_total(&state, this_motion);
+        if (too_many_leaps(leaps_total))
+            continue;
+
+        int leaps_large = ctp_update_leaps_large(&state, this_motion);
+        if (too_many_large_leaps(leaps_large))
+            continue;
 
         if (chromatic_outside_cadence(&state, this_note))
             continue;
+
+        bool disconnected_climax =
+            update_disconnected_climax(&state, this_motion);
+        if (disconnected_climax && ctp_cannot_surpass(range))
+            continue;
+
+        bool repeated;
+        if (ctp_new_climax(&state, this_note)) {
+            if (is_leading_tone(this_note) && ctp_cannot_surpass(range))
+                continue;
+            repeated = false;
+            disconnected_climax = false;
+        } else if (ctp_repeat_climax(&state, this_note)) {
+            if (ctp_cannot_surpass(range))
+                continue;
+            repeated = true;
+        } else
+            repeated = state.repeated_climax;
 
         if (bars_remaining(&state) == 1 && ctp_bad_penultima(&state, this_note))
             continue;
@@ -101,14 +153,23 @@ void next_chunk(CtpState state) {
                 for (int i = 0; i < state.bar; i++) {
                     result_ctp[i] = mt_ctp[i];
                 }
-                result_ctp[state.bar] =
-                    transpose_diatonic(result_ctp[state.bar - 1], 1, context);
+                result_ctp[state.bar] = this_note;
             }
             return;
         }
 
-        next_chunk((CtpState){
-            .bar = state.bar + 1,
-        });
+        v_ints[state.bar] = this_int;
+        mt_ctp[state.bar] = this_note;
+        ctp_motions[state.bar] = this_motion;
+
+        next_chunk((CtpState){.bar = state.bar + 1,
+                              .top = top,
+                              .bottom = bottom,
+                              .leaps_total = leaps_total,
+                              .leaps_large = leaps_large,
+                              .ties = ties,
+                              .imps_in_row = imps_in_row,
+                              .repeated_climax = repeated,
+                              .disconnected_climax = disconnected_climax});
     }
 }
