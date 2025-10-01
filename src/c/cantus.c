@@ -10,12 +10,12 @@ int MODE;
 int cantus[32] = {0};
 const int notes[] = {-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 bool cantus_success = false;
+bool initialised = false;
 
 EMSCRIPTEN_KEEPALIVE
 void initialise_env(void) {
     srand(time(NULL));
-    cantus[0] = cantus[BARS - 1] = 0;
-    cantus[BARS - 2] = 1;
+    initialised = true;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -28,13 +28,14 @@ int generate_cantus(int mode, int length) {
         return 1;
     BARS = length;
 
-    static bool initialised = false;
     if (!initialised) {
         initialise_env();
-        initialised = true;
     }
+    cantus[0] = cantus[BARS - 1] = 0;
+    cantus[BARS - 2] = 1;
 
     try_note((CantusState){.top = 1, .bar = 1, .since_turn = 1});
+    cantus_success = false;
 
     return 0;
 }

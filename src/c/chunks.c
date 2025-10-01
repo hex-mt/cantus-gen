@@ -1,47 +1,47 @@
 #include "chunks.h"
 #include "meantonal.h"
 
-Interval motions[] = {(Interval){-5, -2}, // -P8
-                      (Interval){-4, -1}, // -M6
-                      (Interval){-3, -2}, // -m6
-                      (Interval){-3, -1}, // -P5
-                      (Interval){-2, -1}, // -P4
-                      (Interval){-2, 0},  // -M3
-                      (Interval){-1, -1}, // -m3
-                      (Interval){-1, 0},  // -M2
-                      (Interval){0, -1},  // -m2
-                      (Interval){0, 0},   // P1
-                      (Interval){0, 1},   // m2
-                      (Interval){1, 0},   // M2
-                      (Interval){1, 1},   // m3
-                      (Interval){2, 0},   // M3
-                      (Interval){2, 1},   // P4
-                      (Interval){3, 1},   // P5
-                      (Interval){3, 2},   // m6
-                      (Interval){4, 1},   // M6
-                      (Interval){5, 2}};  // M10
+Interval motions[MELODIC_INDEX_COUNT] = {(Interval){-5, -2}, // -P8
+                                         (Interval){-4, -1}, // -M6
+                                         (Interval){-3, -2}, // -m6
+                                         (Interval){-3, -1}, // -P5
+                                         (Interval){-2, -1}, // -P4
+                                         (Interval){-2, 0},  // -M3
+                                         (Interval){-1, -1}, // -m3
+                                         (Interval){-1, 0},  // -M2
+                                         (Interval){0, -1},  // -m2
+                                         (Interval){0, 0},   // P1
+                                         (Interval){0, 1},   // m2
+                                         (Interval){1, 0},   // M2
+                                         (Interval){1, 1},   // m3
+                                         (Interval){2, 0},   // M3
+                                         (Interval){2, 1},   // P4
+                                         (Interval){3, 1},   // P5
+                                         (Interval){3, 2},   // m6
+                                         (Interval){4, 1},   // M6
+                                         (Interval){5, 2}};  // M10
 
-Interval consonances[] = {(Interval){-7, -2}, // -M10
-                          (Interval){-6, -3}, // -m10
-                          (Interval){-5, -2}, // -P8
-                          (Interval){-4, -1}, // -M6
-                          (Interval){-3, -2}, // -m6
-                          (Interval){-3, -1}, // -P5
-                          (Interval){-2, 0},  // -M3
-                          (Interval){-1, -1}, // -m3
-                          (Interval){0, 0},   // P1
-                          (Interval){1, 1},   // m3
-                          (Interval){2, 0},   // M3
-                          (Interval){3, 1},   // P5
-                          (Interval){3, 2},   // m6
-                          (Interval){4, 1},   // M6
-                          (Interval){5, 2},   // P8
-                          (Interval){6, 3},   // m10
-                          (Interval){7, 2}};  // M10
+Interval consonances[HARMONIC_INDEX_COUNT] = {(Interval){-7, -2}, // -M10
+                                              (Interval){-6, -3}, // -m10
+                                              (Interval){-5, -2}, // -P8
+                                              (Interval){-4, -1}, // -M6
+                                              (Interval){-3, -2}, // -m6
+                                              (Interval){-3, -1}, // -P5
+                                              (Interval){-2, 0},  // -M3
+                                              (Interval){-1, -1}, // -m3
+                                              (Interval){0, 0},   // P1
+                                              (Interval){1, 1},   // m3
+                                              (Interval){2, 0},   // M3
+                                              (Interval){3, 1},   // P5
+                                              (Interval){3, 2},   // m6
+                                              (Interval){4, 1},   // M6
+                                              (Interval){5, 2},   // P8
+                                              (Interval){6, 3},   // m10
+                                              (Interval){7, 2}};  // M10
 
 chunk_node *data[MELODIC_INDEX_COUNT][HARMONIC_INDEX_COUNT] = {0};
 
-chunk_node node_pool[1000];
+chunk_node node_pool[10000];
 
 chunk_node *create_chunk(void) {
     static int i = 0;
@@ -49,7 +49,12 @@ chunk_node *create_chunk(void) {
     return node_pool + i - 1;
 }
 
+bool chunks_initialised = false;
+
 void generate_chunks(void) {
+    if (chunks_initialised)
+        return;
+    chunks_initialised = true;
     for (int i = 0; i < MELODIC_INDEX_COUNT; i++) {
         for (int j = 0; j < HARMONIC_INDEX_COUNT; j++) {
             for (int k = 0; k < HARMONIC_INDEX_COUNT; k++) {
@@ -72,33 +77,26 @@ void generate_chunks(void) {
                     (stepspan(consonances[j]) == -7 &&
                      stepspan(consonances[k]) == -7))
                     continue;
-                Interval secondMotion = intervals_subtract(
+                Interval ctp_motion = intervals_subtract(
                     intervals_add(consonances[k], motions[i]), consonances[j]);
                 // no direct motion to perfect consonances
-                if (((stepspan(motions[i]) > 0 && stepspan(secondMotion) > 0) ||
-                     (stepspan(motions[i]) < 0 &&
-                      stepspan(secondMotion) < 0)) &&
+                if (((stepspan(motions[i]) > 0 && stepspan(ctp_motion) > 0) ||
+                     (stepspan(motions[i]) < 0 && stepspan(ctp_motion) < 0)) &&
                     (abs(stepspan(consonances[k])) == 4 ||
                      abs(stepspan(consonances[k])) == 7))
                     continue;
                 // no similar motion where either part is moving by more than a
                 // third.
-                if ((stepspan(motions[i]) >= 2 && stepspan(secondMotion) > 1) ||
-                    (stepspan(motions[i]) <= -2 &&
-                     stepspan(secondMotion) < -1) ||
-                    (stepspan(motions[i]) > 1 && stepspan(secondMotion) >= 2) ||
-                    (stepspan(motions[i]) < -1 && stepspan(secondMotion) <= -2))
-                    continue;
-                // no ottava battuta
-                if (abs(stepspan(secondMotion)) > 1 &&
-                    abs(stepspan(motions[i])) == 1 &&
-                    abs(stepspan(consonances[k])) % 7 == 0)
+                if ((stepspan(motions[i]) > 2 && stepspan(ctp_motion) > 1) ||
+                    (stepspan(motions[i]) < -2 && stepspan(ctp_motion) < -1) ||
+                    (stepspan(motions[i]) > 1 && stepspan(ctp_motion) > 2) ||
+                    (stepspan(motions[i]) < -1 && stepspan(ctp_motion) < -2))
                     continue;
 
-                for (int m = 0; m < 13; m++) {
-                    if (intervals_equal(secondMotion, motions[m])) {
+                for (int m = 0; m < MELODIC_INDEX_COUNT; m++) {
+                    if (intervals_equal(ctp_motion, motions[m])) {
                         add_chunk(motions[i], consonances[j],
-                                  (chunk){consonances[k], secondMotion});
+                                  (chunk){consonances[k], ctp_motion});
                     }
                 }
             }
@@ -162,10 +160,10 @@ void shuffle_list(chunk_node **head) {
         return;
 
     // Step 1: copy node pointers into an array
-    chunk_node *arr[16]; // list length is <16
+    chunk_node *arr[32]; // list length is <16
     int n = 0;
     chunk_node *cur = *head;
-    while (cur && n < 16) {
+    while (cur && n < 32) {
         arr[n++] = cur;
         cur = cur->next;
     }
@@ -195,7 +193,29 @@ chunk_node *get_chunks(Interval cons, Interval motion) {
         si >= HARMONIC_INDEX_COUNT)
         return NULL;
 
-    shuffle_list(&data[fi][si]);
-
     return data[fi][si]; // may be NULL if no chunks
+}
+
+chunk_node *clone_list_into(const chunk_node *head,
+                            chunk_node buf[MAX_CHUNKS]) {
+    const chunk_node *src = head;
+    chunk_node *prev = NULL;
+    int count = 0;
+
+    while (src && count < MAX_CHUNKS) {
+        buf[count].data = src->data; // copy chunk by value
+        if (prev) {
+            prev->next = &buf[count];
+        }
+        prev = &buf[count];
+        src = src->next;
+        count++;
+    }
+
+    if (prev)
+        prev->next = NULL;
+
+    shuffle_list(&buf);
+
+    return buf;
 }

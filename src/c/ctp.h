@@ -44,6 +44,20 @@ static inline int bars_remaining(CtpState *state) {
     return BARS - state->bar - 1;
 }
 
+static inline bool chromatic_outside_cadence(CtpState *state, Pitch this_note) {
+    int alteration = degree_alteration(this_note, context);
+    int degree = degree_number(this_note, context);
+
+    if (bars_remaining(state) > 2 && alteration)
+        return true;
+
+    if (bars_remaining(state) == 1 && alteration == -1 ||
+        (alteration == 1 && MODE != 2 && MODE != 3 && MODE != 4 &&
+         degree != 5 && degree != 6))
+        return true;
+    return false;
+}
+
 static inline bool is_subtonic(Pitch p) {
     return (MODE - 1) - pitch_chroma(p) == 2;
 }
@@ -56,7 +70,7 @@ static inline bool ctp_bad_penultima(CtpState *state, Pitch this_note) {
     if (MODE == 5 && !is_subtonic(this_note)) {
         return true;
     }
-    if (!is_leading_tone(this_note))
+    if (MODE != 5 && !is_leading_tone(this_note))
         return true;
     return false;
 }

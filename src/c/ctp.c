@@ -1,10 +1,10 @@
-#include <time.h>
 #define MEANTONAL
+#include "ctp.h"
 #include "cantus.h"
 #include "chunks.h"
-#include "ctp.h"
 #include "meantonal.h"
 #include <emscripten/emscripten.h>
+#include <stdio.h>
 
 Interval firstInts[] = {(Interval){5, 2}, (Interval){3, 1}, (Interval){0, 0},
                         (Interval){-5, -2}};
@@ -24,7 +24,16 @@ EMSCRIPTEN_KEEPALIVE
 Pitch *get_ctp() { return result_ctp; }
 
 EMSCRIPTEN_KEEPALIVE
+int get_solutions() { return solutions; }
+
+EMSCRIPTEN_KEEPALIVE
 void generate_ctp(void) {
+    solutions = 0;
+    for (int i = 0; i < BARS; i++) {
+        result_ctp[i] = (Pitch){0, 0};
+        mt_ctp[i] = (Pitch){0, 0};
+        v_ints[i] = (Interval){0, 0};
+    }
     generate_chunks();
 
     // cantus data init
@@ -65,26 +74,38 @@ void next_chunk(CtpState state) {
         return;
     }
 
+    chunk_node buf[MAX_CHUNKS];
+    chunk_node *cloned_chunks = clone_list_into(chunks, buf);
+
     bool first_chunk = true;
-    for (chunk_node *cur = chunks; cur != NULL; cur = cur->next) {
+    for (chunk_node *cur = cloned_chunks; cur != NULL; cur = cur->next) {
         Interval this_int = cur->data.cons;
         Pitch this_note = transpose_real(mt_cantus[state.bar], this_int);
+        Pitch prev_note = mt_ctp[state.bar - 1];
+        v_ints[state.bar] = this_int;
+        mt_ctp[state.bar] = this_note;
+
+        if (chromatic_outside_cadence(&state, this_note))
+            continue;
 
         if (bars_remaining(&state) == 1 && ctp_bad_penultima(&state, this_note))
-            return;
+            continue;
+        ;
+
         if (bars_remaining(&state) == 0) {
-            if (is_tonic(this_note) && ctp_climax_good(&state)) {
+            if (!first_chunk)
+                return;
+            first_chunk = false;
+            if (ctp_climax_good(&state)) {
                 solutions++;
-                for (int i = 0; i < BARS; i++) {
+                for (int i = 0; i < state.bar; i++) {
                     result_ctp[i] = mt_ctp[i];
                 }
-                result_ctp[state.bar] = this_note;
+                result_ctp[state.bar] =
+                    transpose_diatonic(result_ctp[state.bar - 1], 1, context);
             }
             return;
         }
-
-        v_ints[state.bar] = this_int;
-        mt_ctp[state.bar] = this_note;
 
         next_chunk((CtpState){
             .bar = state.bar + 1,
