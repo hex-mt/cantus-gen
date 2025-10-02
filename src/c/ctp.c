@@ -100,6 +100,16 @@ void next_chunk(CtpState state) {
         if (range > 9)
             continue;
 
+        int to_fill[19];
+        bool must_fill = state.must_fill;
+
+        if (ctp_registral_break(&state, &must_fill, to_fill, this_note,
+                                prev_note, this_motion))
+            continue;
+
+        if (ctp_large_unrecovered_leap(&state, this_motion))
+            continue;
+
         if (consecutive_ties(&state, this_note, prev_note))
             continue;
 

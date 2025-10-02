@@ -20,8 +20,8 @@ typedef struct {
     int leaps_in_row;
     Pitch prev_turn;
     int since_turn;
-    // bool must_fill;
-    // int *to_fill;
+    bool must_fill;
+    int *to_fill;
 } CtpState;
 
 extern Pitch mt_cantus[32];
@@ -39,6 +39,55 @@ void next_chunk(CtpState state);
 
 static inline int bars_remaining(CtpState *state) {
     return BARS - state->bar - 1;
+}
+
+static inline int pitch_index(Pitch p) {
+    return stepspan(interval_between(mt_ctp[0], p));
+}
+
+static inline bool ctp_registral_break(CtpState *state, bool *must_fill,
+                                       int to_fill[19], Pitch this_note,
+                                       Pitch prev_note, Interval this_motion) {
+    if (*must_fill) {
+        int lower = get_lower_boundary(state->to_fill);
+        int upper = get_upper_boundary(state->to_fill);
+        if ((pitch_index(this_note) == lower ||
+             pitch_index(this_note) == upper) &&
+            (pitch_index(prev_note) == lower ||
+             pitch_index(prev_note) == upper))
+            return true;
+        for (int i = 0; i < 19; i++) {
+            to_fill[i] = state->to_fill[i];
+        }
+        if (state->to_fill[pitch_index(this_note) + 9] == -1) {
+            for (int i = 1; i < 18; i++) {
+                if (state->to_fill[i] == 0)
+                    return true;
+            }
+            *must_fill = false;
+        } else
+            to_fill[pitch_index(this_note) + 9]++;
+    } else if (abs(stepspan(this_motion)) > 3) {
+        for (int i = 0; i < 19; i++)
+            to_fill[i] = -1; // sentinel value
+
+        int low_bound = min(pitch_index(this_note), pitch_index(prev_note)) + 9;
+        int high_bound =
+            max(pitch_index(this_note), pitch_index(prev_note)) + 9;
+        for (int i = low_bound; i <= high_bound; i++)
+            to_fill[i] = 0;
+        to_fill[low_bound] = to_fill[high_bound] = 1;
+        *must_fill = true;
+    }
+    return false;
+}
+
+static inline bool ctp_large_unrecovered_leap(CtpState *state,
+                                              Interval this_motion) {
+    Interval prev_motion = ctp_motions[state->bar - 1];
+    return abs(stepspan(prev_motion)) > 3 &&
+           (same_sign(stepspan(prev_motion), stepspan(this_motion)) ||
+            abs(stepspan(this_motion)) > 3);
 }
 
 static inline bool consecutive_ties(CtpState *state, Pitch this_note,
@@ -167,10 +216,6 @@ static inline bool ctp_noodling(CtpState *state, Pitch this_note) {
 
 static inline bool ctp_overemphasised_tone(CtpState *state, Pitch this_note) {
     int count = 0;
-    if (degree_number(this_note, context) == 0 && bars_remaining(state) != 0)
-        count++;
-    if (degree_number(this_note, context) == 1 && bars_remaining(state) != 1)
-        count++;
     for (int i = 0; i < state->bar; i++)
         if (pitches_equal(mt_ctp[i], this_note))
             count++;
