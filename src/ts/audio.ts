@@ -103,8 +103,10 @@ export async function playCantus() {
 function mapUpper53() {
     return state.upperVoice.map((p, i) => {
         const otherNote = state.lowerVoice[i];
+        if (p.chroma === 6 && otherNote.chroma === 3)
+            return p.transposeReal(new Interval(-2, 4));
         if (
-            (p.chroma == 2 && (otherNote.chroma == 3 || otherNote.chroma == -1)) ||
+            (p.chroma === 2 && (otherNote.chroma === 3 || otherNote.chroma === -1)) ||
             (p.chroma >= 3 && p.chroma < 7)
         )
             return p.transposeReal(new Interval(-1, 2));
@@ -136,8 +138,10 @@ export async function playCtpTop() {
 function mapLower53() {
     return state.lowerVoice.map((p, i) => {
         const otherNote = state.upperVoice[i];
+        if (p.chroma === 6 && otherNote.chroma === 3)
+            return p.transposeReal(new Interval(-2, 4));
         if (
-            (p.chroma == 2 && (otherNote.chroma == 3 || otherNote.chroma == -1)) ||
+            (p.chroma === 2 && (otherNote.chroma === 3 || otherNote.chroma === -1)) ||
             (p.chroma >= 3 && p.chroma < 7)
         )
             return p.transposeReal(new Interval(-1, 2));
