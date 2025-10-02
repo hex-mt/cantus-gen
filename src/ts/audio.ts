@@ -1,5 +1,6 @@
-import { Interval, Pitch, SPN, TuningMap } from "meantonal";
+import { Interval, Pitch, TuningMap } from "meantonal";
 import { state } from "./state.js";
+import { drawCompound } from "./scoreCompound.js";
 
 type AudioState = {
     freq: TuningMap;
@@ -87,6 +88,15 @@ async function readyPlayback() {
     }
 }
 
+function mapCantus53() {
+    return state.repositionedCantus.map((p, i) => {
+        if (p.chroma >= 2 && p.chroma < 7)
+            return p.transposeReal(new Interval(-1, 2));
+        else if (p.chroma >= 7) return p.transposeReal(new Interval(-2, 4));
+        return p;
+    });
+}
+
 export async function playCantus() {
     await readyPlayback();
     if (audio.playing) {
@@ -96,17 +106,27 @@ export async function playCantus() {
             "#cantus g.note",
         ) as NodeListOf<SVGGElement>;
 
-        scheduleFrequencies(state.repositionedCantus, noteObjects, time, 1);
+        let cantus = state.repositionedCantus;
+        if (audio.currentEDO == 53) {
+            cantus = mapCantus53();
+        }
+
+        scheduleFrequencies(cantus, noteObjects, time, 1);
     }
 }
 
-function mapUpper53() {
+export function mapUpper53() {
     return state.upperVoice.map((p, i) => {
-        const otherNote = state.lowerVoice[i];
-        if (p.chroma === 6 && otherNote.chroma === 3)
+        const otherNote = state.lowerVoice[i].chroma;
+        if (
+            (p.chroma === 6 &&
+                (otherNote === 5 || otherNote === 3 || otherNote === 2)) ||
+            (p.chroma === 5 && otherNote === 6)
+        )
             return p.transposeReal(new Interval(-2, 4));
         if (
-            (p.chroma === 2 && (otherNote.chroma === 3 || otherNote.chroma === -1)) ||
+            (p.chroma === 2 &&
+                (otherNote === 6 || otherNote === 3 || otherNote === -1)) ||
             (p.chroma >= 3 && p.chroma < 7)
         )
             return p.transposeReal(new Interval(-1, 2));
@@ -135,13 +155,18 @@ export async function playCtpTop() {
     }
 }
 
-function mapLower53() {
+export function mapLower53() {
     return state.lowerVoice.map((p, i) => {
-        const otherNote = state.upperVoice[i];
-        if (p.chroma === 6 && otherNote.chroma === 3)
+        const otherNote = state.upperVoice[i].chroma;
+        if (
+            (p.chroma === 6 &&
+                (otherNote === 5 || otherNote === 3 || otherNote === 2)) ||
+            (p.chroma === 5 && otherNote === 6)
+        )
             return p.transposeReal(new Interval(-2, 4));
         if (
-            (p.chroma === 2 && (otherNote.chroma === 3 || otherNote.chroma === -1)) ||
+            (p.chroma === 2 &&
+                (otherNote === 6 || otherNote === 3 || otherNote === -1)) ||
             (p.chroma >= 3 && p.chroma < 7)
         )
             return p.transposeReal(new Interval(-1, 2));
@@ -201,7 +226,7 @@ export async function playCompound() {
             "#compound g.note",
         ) as NodeListOf<SVGGElement>;
 
-        scheduleFrequencies(state.compound, noteObjects, time, 1 / 3);
+        scheduleFrequencies(state.compoundAdjusted, noteObjects, time, 1 / 3);
     }
 }
 
@@ -267,6 +292,7 @@ function scheduleFrequencies(
 function setTuningMap(edo: number) {
     audio.freq = TuningMap.fromEDO(edo);
     audio.currentEDO = edo;
+    drawCompound();
 }
 
 export function setTuning(edo: number) {

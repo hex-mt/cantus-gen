@@ -10,6 +10,7 @@ export const state = {
   upperVoice: [] as Pitch[],
   lowerVoice: [] as Pitch[],
   compound: [] as Pitch[],
+  compoundAdjusted: [] as Pitch[],
   mode: 6,
   length: 8,
   modeLabel: document.getElementById("mode-label")!,
