@@ -68,7 +68,7 @@ playCompoundButton.addEventListener("click", playCompound);
 
 // Setting controls
 
-[12, 19, 31, 50, 55].forEach((edo) => {
+[12, 19, 31, 50, 53, 55].forEach((edo) => {
   document.getElementById(`edo-${edo}`)?.addEventListener("click", () => {
     setTuning(edo);
   });

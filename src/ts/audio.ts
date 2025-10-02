@@ -1,8 +1,9 @@
-import { Pitch, TuningMap } from "meantonal";
+import { Interval, Pitch, SPN, TuningMap } from "meantonal";
 import { state } from "./state.js";
 
 type AudioState = {
     freq: TuningMap;
+    currentEDO: number;
     bpm: string;
     waveform: OscillatorType;
     ctx?: AudioContext;
@@ -18,6 +19,7 @@ type AudioState = {
 
 export const audio: AudioState = {
     freq: TuningMap.fromEDO(31),
+    currentEDO: 31,
     bpm: "100",
     waveform: "triangle",
     playing: false,
@@ -85,7 +87,6 @@ async function readyPlayback() {
     }
 }
 
-
 export async function playCantus() {
     await readyPlayback();
     if (audio.playing) {
@@ -99,6 +100,19 @@ export async function playCantus() {
     }
 }
 
+function mapUpper53() {
+    return state.upperVoice.map((p, i) => {
+        const otherNote = state.lowerVoice[i];
+        if (
+            (p.chroma == 2 && (otherNote.chroma == 3 || otherNote.chroma == -1)) ||
+            (p.chroma >= 3 && p.chroma < 7)
+        )
+            return p.transposeReal(new Interval(-1, 2));
+        else if (p.chroma >= 7) return p.transposeReal(new Interval(-2, 4));
+        return p;
+    });
+}
+
 export async function playCtpTop() {
     await readyPlayback();
     if (audio.playing) {
@@ -110,8 +124,26 @@ export async function playCtpTop() {
             layer.querySelectorAll("g.note"),
         ) as Array<NodeListOf<SVGGElement>>;
 
-        scheduleFrequencies(state.upperVoice, noteLists[0], time, 1, 0.66);
+        let upperVoice = state.upperVoice;
+        if (audio.currentEDO == 53) {
+            upperVoice = mapUpper53();
+        }
+
+        scheduleFrequencies(upperVoice, noteLists[0], time, 1, 0.66);
     }
+}
+
+function mapLower53() {
+    return state.lowerVoice.map((p, i) => {
+        const otherNote = state.upperVoice[i];
+        if (
+            (p.chroma == 2 && (otherNote.chroma == 3 || otherNote.chroma == -1)) ||
+            (p.chroma >= 3 && p.chroma < 7)
+        )
+            return p.transposeReal(new Interval(-1, 2));
+        else if (p.chroma >= 7) return p.transposeReal(new Interval(-2, 4));
+        return p;
+    });
 }
 
 export async function playCtpBottom() {
@@ -125,7 +157,12 @@ export async function playCtpBottom() {
             layer.querySelectorAll("g.note"),
         ) as Array<NodeListOf<SVGGElement>>;
 
-        scheduleFrequencies(state.lowerVoice, noteLists[1], time, 1, 0.66);
+        let lowerVoice = state.lowerVoice;
+        if (audio.currentEDO == 53) {
+            lowerVoice = mapLower53();
+        }
+
+        scheduleFrequencies(lowerVoice, noteLists[1], time, 1, 0.66);
     }
 }
 
@@ -139,8 +176,15 @@ export async function playCtp() {
             layer.querySelectorAll("g.note"),
         ) as Array<NodeListOf<SVGGElement>>;
 
-        scheduleFrequencies(state.upperVoice, noteLists[0], time, 1, -0.66);
-        scheduleFrequencies(state.lowerVoice, noteLists[1], time, 1, 0.66);
+        let upperVoice = state.upperVoice;
+        let lowerVoice = state.lowerVoice;
+        if (audio.currentEDO == 53) {
+            upperVoice = mapUpper53();
+            lowerVoice = mapLower53();
+        }
+
+        scheduleFrequencies(upperVoice, noteLists[0], time, 1, -0.66);
+        scheduleFrequencies(lowerVoice, noteLists[1], time, 1, 0.66);
     }
 }
 
@@ -164,7 +208,7 @@ function scheduleFrequencies(
     noteLength: number,
     pan: number = 0,
 ) {
-    const duration = noteLength * 60 / (audio.bpm as unknown as number);
+    const duration = (noteLength * 60) / (audio.bpm as unknown as number);
 
     noteObjects.forEach((note, i) => {
         audio.activeLitNotes.push(
@@ -218,6 +262,7 @@ function scheduleFrequencies(
 
 function setTuningMap(edo: number) {
     audio.freq = TuningMap.fromEDO(edo);
+    audio.currentEDO = edo;
 }
 
 export function setTuning(edo: number) {
