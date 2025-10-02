@@ -18,8 +18,8 @@ typedef struct {
     int leaps_total; // leaps larger than a 2nd
     int leaps_large; // leaps larger than a 4th
     int leaps_in_row;
-    // int prev_turn;
-    // int since_turn;
+    Pitch prev_turn;
+    int since_turn;
     // bool must_fill;
     // int *to_fill;
 } CtpState;
@@ -115,6 +115,68 @@ static inline bool ctp_cannot_surpass(int range) { return range == 9; }
 
 static inline bool ctp_repeat_climax(CtpState *state, Pitch this_note) {
     return stepspan((Interval)this_note) == stepspan((Interval)state->top);
+}
+
+static inline bool ctp_same_direction(CtpState *state, Interval this_motion) {
+    return same_sign(stepspan(ctp_motions[state->bar - 1]),
+                     stepspan(this_motion));
+}
+
+static inline bool ctp_should_change_direction(CtpState *state) {
+    return state->since_turn == 3;
+}
+
+static inline bool ctp_dissonant_outline(CtpState *state, Pitch prev_note) {
+    Interval outline = interval_between(state->prev_turn, prev_note);
+    int steps = abs(stepspan(outline));
+    if (steps == 6 || steps == 8 || abs(interval_quality(outline)) > 1)
+        return true;
+    return false;
+}
+
+static inline bool ctp_has_tritone(CtpState *state, int since_turn,
+                                   Pitch this_note) {
+    if (since_turn > 1) {
+        if (abs(interval_pc12(
+                interval_between(this_note, mt_ctp[state->bar - 2]))) == 6) {
+            return true;
+        }
+    } else if (since_turn > 2) {
+        if (abs(interval_pc12(
+                interval_between(this_note, mt_ctp[state->bar - 3]))) == 6) {
+            for (int i = 0; i < 3; i++) {
+                if (abs(stepspan(interval_between(
+                        mt_ctp[state->bar - i], mt_ctp[state->bar - i - 1]))) >
+                    1)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
+static inline bool ctp_noodling(CtpState *state, Pitch this_note) {
+    if ((state->bar >= 3 && pitches_equal(this_note, mt_ctp[state->bar - 2])) &&
+        (pitches_equal(mt_ctp[state->bar - 1], mt_ctp[state->bar - 3])))
+        return true;
+    if (state->bar >= 4 && pitches_equal(this_note, mt_ctp[state->bar - 2]) &&
+        pitches_equal(this_note, mt_ctp[state->bar - 4]))
+        return true;
+    return false;
+}
+
+static inline bool ctp_overemphasised_tone(CtpState *state, Pitch this_note) {
+    int count = 0;
+    if (degree_number(this_note, context) == 0 && bars_remaining(state) != 0)
+        count++;
+    if (degree_number(this_note, context) == 1 && bars_remaining(state) != 1)
+        count++;
+    for (int i = 0; i < state->bar; i++)
+        if (pitches_equal(mt_ctp[i], this_note))
+            count++;
+    if (count > 2)
+        return true;
+    return false;
 }
 
 static inline bool is_subtonic(Pitch p) {

@@ -140,6 +140,28 @@ void next_chunk(CtpState state) {
         } else
             repeated = state.repeated_climax;
 
+        int since_turn;
+        Pitch new_turn = state.prev_turn;
+        if (ctp_same_direction(&state, this_motion)) {
+            if (ctp_should_change_direction(&state))
+                continue;
+            since_turn = state.since_turn + 1;
+        } else {
+            if (ctp_dissonant_outline(&state, prev_note))
+                continue;
+            since_turn = 1;
+            new_turn = prev_note;
+        }
+
+        if (ctp_has_tritone(&state, since_turn, this_note))
+            continue;
+
+        if (ctp_noodling(&state, this_note))
+            continue;
+
+        if (ctp_overemphasised_tone(&state, this_note))
+            continue;
+
         if (bars_remaining(&state) == 1 && ctp_bad_penultima(&state, this_note))
             continue;
         ;
@@ -162,14 +184,18 @@ void next_chunk(CtpState state) {
         mt_ctp[state.bar] = this_note;
         ctp_motions[state.bar] = this_motion;
 
-        next_chunk((CtpState){.bar = state.bar + 1,
-                              .top = top,
-                              .bottom = bottom,
-                              .leaps_total = leaps_total,
-                              .leaps_large = leaps_large,
-                              .ties = ties,
-                              .imps_in_row = imps_in_row,
-                              .repeated_climax = repeated,
-                              .disconnected_climax = disconnected_climax});
+        next_chunk((CtpState){
+            .bar = state.bar + 1,
+            .top = top,
+            .bottom = bottom,
+            .leaps_total = leaps_total,
+            .leaps_large = leaps_large,
+            .ties = ties,
+            .imps_in_row = imps_in_row,
+            .repeated_climax = repeated,
+            .disconnected_climax = disconnected_climax,
+            .since_turn = since_turn,
+            .prev_turn = new_turn,
+        });
     }
 }

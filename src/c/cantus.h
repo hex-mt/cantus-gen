@@ -134,7 +134,9 @@ static inline int get_next_note(CantusState *state, int to_try) {
     }
 }
 
-static inline bool same_sign(int x, int y) { return (x >= 0) ^ (y < 0); }
+static inline bool same_sign(int x, int y) {
+    return ((x > 0) ^ (y < 0)) || (x == 0 || y == 0);
+}
 
 static inline int get_lower_boundary(int to_fill[18]) {
     for (int i = 0; i < 18; i++) {
