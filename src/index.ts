@@ -103,7 +103,7 @@ const VerovioModule = await createVerovioModule();
 state.verovio = new VerovioToolkit(VerovioModule);
 
 showSection(1);
-showSection(2);
+showSection(1);
 setTuning(31);
 setWaveform("triangle");
 drawCantus();
