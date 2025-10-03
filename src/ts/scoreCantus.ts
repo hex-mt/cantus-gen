@@ -49,7 +49,9 @@ export async function drawCantus() {
 
     state.repositionedCantus.forEach((p, i) => {
         mei += `<note pname="${p.letter.toLowerCase()}" oct="${p.octave}" dur="1">`;
-        mei += `<verse><syl>${solfa[i]}</syl></verse>`;
+        if (p.accidental !== 0)
+            mei += `<accid accid="${p.accidental === 1 ? "s" : "f"}" />`;
+        mei += `<verse><syl>${solfa[i] !== undefined ? solfa[i] : "?"}</syl></verse>`;
         mei += `</note>`;
     });
 
