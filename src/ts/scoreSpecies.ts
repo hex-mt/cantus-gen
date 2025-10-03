@@ -3,10 +3,10 @@ import { state } from "./state.js";
 import { audio } from "./audio.js";
 import { drawCompound } from "./scoreCompound.js";
 
-export async function drawCtp(fromString: boolean) {
+export async function drawCtp() {
     audio.stop();
 
-    state.ctp = state.cantussy.generateCtp(fromString);
+    state.ctp = state.cantussy.generateCtp();
     state.solutionsLabel.innerHTML = `${state.cantussy.solutions}`;
 
     if (state.ctp[0].isEqual(new Pitch(0, 0))) {

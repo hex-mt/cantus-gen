@@ -3,7 +3,7 @@ import { state } from "./state.js";
 import { audio } from "./audio.js";
 import { drawCtp } from "./scoreSpecies.js";
 
-export async function drawCantus(fromString: boolean = false) {
+export async function drawCantus() {
     audio.stop();
 
     let mei = `<?xml version="1.0" encoding="UTF-8"?>
@@ -30,7 +30,7 @@ export async function drawCantus(fromString: boolean = false) {
               <staff n="1">
                 <layer n="1">`;
 
-    if (!fromString) {
+    if (!state.customCantus) {
         state.actualMode =
             state.mode != 6 ? state.mode : Math.floor(Math.random() * 6);
         state.tonicLetter = "FCGDAEB"[state.actualMode];
@@ -76,7 +76,7 @@ export async function drawCantus(fromString: boolean = false) {
 
     document.getElementById("cantus")!.innerHTML = svg;
 
-    drawCtp(fromString);
+    drawCtp();
 
     state.cantusString = cantusToString(state.cantus);
     state.cantusInput.value = state.cantusString;

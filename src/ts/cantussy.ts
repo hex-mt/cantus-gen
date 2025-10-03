@@ -47,8 +47,8 @@ export class Cantussy {
         return result;
     }
 
-    generateCtp(fromString: boolean) {
-        this.generate_ctp(fromString ? 1 : 0);
+    generateCtp() {
+        this.generate_ctp(state.customCantus ? 1 : 0);
 
         const ptr = this.module._get_ctp();
 

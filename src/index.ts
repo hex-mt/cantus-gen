@@ -45,7 +45,10 @@ document
 
 document
     .getElementById("randomise-cantus")!
-    .addEventListener("click", () => drawCantus());
+    .addEventListener("click", () => {
+        state.customCantus = false;
+        drawCantus();
+    });
 
 document.getElementById("play-cantus")!.addEventListener("click", playCantus);
 
@@ -54,13 +57,20 @@ document.getElementById("solfa")!.addEventListener("click", toggleSolfa);
 document.getElementById("edit")!.addEventListener("click", toggleEdit);
 document.getElementById("cancel-edit")!.addEventListener("click", toggleEdit);
 document.getElementById("confirm-edit")!.addEventListener("click", confirmEdit);
+state.cantusInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter")
+        confirmEdit();
+});
 
 // Counterpoint controls
 
 document
     .getElementById("randomise-both")!
-    .addEventListener("click", () => drawCantus());
-document.getElementById("randomise-ctp")!.addEventListener("click", drawCtp);
+    .addEventListener("click", () => {
+        state.customCantus = false;
+        drawCantus();
+    });
+document.getElementById("randomise-ctp")!.addEventListener("click", () => drawCtp());
 
 document.getElementById("play-ctp-top")!.addEventListener("click", playCtpTop);
 document

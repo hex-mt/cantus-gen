@@ -6,6 +6,7 @@ import { Cantussy } from "./cantussy.js";
 export const state = {
     cantus: [] as Pitch[],
     cantusString: "",
+    customCantus: false,
     ctp: [] as Pitch[],
     repositionedCantus: [] as Pitch[],
     upperVoice: [] as Pitch[],
@@ -29,12 +30,14 @@ export const state = {
 };
 
 export function handleIncrementMode() {
+    state.customCantus = false;
     state.mode = (state.mode + 6) % 7;
     updateModeLabel();
     drawCantus();
 }
 
 export function handleDecrementMode() {
+    state.customCantus = false;
     state.mode = (state.mode + 1) % 7;
     updateModeLabel();
     drawCantus();
@@ -55,12 +58,14 @@ function updateModeLabel() {
 }
 
 export function handleIncrementLength() {
+    state.customCantus = false;
     state.length = (state.length + 1) % 9;
     updateLenLabel();
     drawCantus();
 }
 
 export function handleDecrementLength() {
+    state.customCantus = false;
     state.length = (state.length + 8) % 9;
     updateLenLabel();
     drawCantus();
@@ -89,9 +94,11 @@ export function toggleEdit() {
 
     document.getElementById("cantus")?.classList.toggle("hidden")
     document.getElementById("edit-input")?.classList.toggle("hidden")
+    state.cantusInput.focus();
 }
 
 export function confirmEdit() {
+    state.customCantus = true;
     state.cantusString =
         state.cantusInput.value;
     state.cantus = cantusFromString();
@@ -99,7 +106,7 @@ export function confirmEdit() {
     state.actualLength = state.cantus.length;
     state.tonicLetter = "FCGDAE"[state.actualMode];
     state.cantussy.updateCantus();
-    drawCantus(true);
+    drawCantus();
     toggleEdit();
 }
 
