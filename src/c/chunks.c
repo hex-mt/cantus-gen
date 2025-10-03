@@ -87,10 +87,8 @@ void generate_chunks(void) {
                     continue;
                 // no similar motion where either part is moving by more than a
                 // third.
-                if ((stepspan(motions[i]) > 2 && stepspan(ctp_motion) > 1) ||
-                    (stepspan(motions[i]) < -2 && stepspan(ctp_motion) < -1) ||
-                    (stepspan(motions[i]) > 1 && stepspan(ctp_motion) > 2) ||
-                    (stepspan(motions[i]) < -1 && stepspan(ctp_motion) < -2))
+                if ((stepspan(motions[i]) > 2 && stepspan(ctp_motion) > 2) ||
+                    (stepspan(motions[i]) < -2 && stepspan(ctp_motion) < -2))
                     continue;
 
                 for (int m = 0; m < MELODIC_INDEX_COUNT; m++) {
