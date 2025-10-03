@@ -246,7 +246,7 @@ static inline bool ctp_complete(CtpState *state) {
 }
 
 static inline bool bad_ctp_climax(Pitch climax) {
-    return intervals_equal(interval_between(climax, tonic), (Interval){0, 1});
+    return interval_chroma(interval_between(tonic, climax)) == 5;
 }
 
 static inline bool ctp_climax_good(CtpState *state) {

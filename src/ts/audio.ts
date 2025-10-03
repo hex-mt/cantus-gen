@@ -242,11 +242,11 @@ function scheduleFrequencies(
     noteObjects.forEach((note, i) => {
         audio.activeLitNotes.push(
             setTimeout(
-                () => (note.style.fill = "var(--color-orange-300)"),
+                () => (note.classList.add("fill-orange-500", "dark:fill-orange-300")),
                 i * duration * 1000,
             ),
         );
-        setTimeout(() => (note.style.fill = ""), (i + 1) * duration * 1000);
+        setTimeout(() => (note.classList.remove("fill-orange-500", "dark:fill-orange-300")), (i + 1) * duration * 1000);
     });
 
     const frequencies = pitches.map((p) => audio.freq.toHz(p));
