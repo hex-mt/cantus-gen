@@ -5,8 +5,11 @@ export class Cantussy {
     private module: any;
     private generate_cantus: (mode: number, length: number) => void;
     private get_cantus_value: (index: number) => number;
-    private generate_ctp: () => void;
+    private generate_ctp: (x: number) => void;
     private get_solutions: () => number;
+    private set_length: (x: number) => void;
+    private set_mode: (x: number) => void;
+    private set_cantus: (i: number, w: number, h: number) => void;
     constructor(module: any) {
         this.module = module;
 
@@ -19,9 +22,14 @@ export class Cantussy {
             "number",
         ]);
 
-        this.generate_ctp = this.module.cwrap("generate_ctp", null, []);
+        this.generate_ctp = this.module.cwrap("generate_ctp", null, ["number"]);
 
         this.get_solutions = this.module.cwrap("get_solutions", "number", []);
+
+        this.set_length = this.module.cwrap("set_bars", null, ["number"]);
+        this.set_mode = this.module.cwrap("set_mode", null, ["number"]);
+
+        this.set_cantus = this.module.cwrap("set_cantus", null, ["number", "number", "number"]);
     }
     generateCantus() {
         this.generate_cantus(state.actualMode, state.actualLength);
@@ -39,8 +47,8 @@ export class Cantussy {
         return result;
     }
 
-    generateCtp() {
-        this.generate_ctp();
+    generateCtp(fromString: boolean) {
+        this.generate_ctp(fromString ? 1 : 0);
 
         const ptr = this.module._get_ctp();
 
@@ -62,5 +70,13 @@ export class Cantussy {
 
     get solutions() {
         return this.get_solutions();
+    }
+
+    updateCantus() {
+        this.set_length(state.actualLength)
+        this.set_mode(state.actualMode)
+        for (let i = 0; i < state.actualLength; i++) {
+            this.set_cantus(i, state.cantus[i].w, state.cantus[i].h);
+        }
     }
 }

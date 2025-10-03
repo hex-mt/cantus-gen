@@ -16,8 +16,8 @@ export async function drawCompound() {
     audio.stop();
 
     if (state.ctp[0].isEqual(new Pitch(0, 0))) {
-        document.getElementById("ctp")!.innerHTML =
-            `<div class="p-6 my-18 border-orange-100 border-2 text-orange-100 text-xl">No solutions found :(</div>`;
+        document.getElementById("compound")!.innerHTML =
+            `<div class="p-6 my-8 border-stone-700 dark:border-orange-100 border-2 text-stone-700 dark:text-orange-100 text-xl">No solutions found :(</div>`;
         return;
     }
 

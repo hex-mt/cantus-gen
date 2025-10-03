@@ -3,15 +3,16 @@ import { state } from "./state.js";
 import { audio } from "./audio.js";
 import { drawCompound } from "./scoreCompound.js";
 
-export async function drawCtp() {
+export async function drawCtp(fromString: boolean) {
     audio.stop();
 
-    state.ctp = state.cantussy.generateCtp();
+    state.ctp = state.cantussy.generateCtp(fromString);
     state.solutionsLabel.innerHTML = `${state.cantussy.solutions}`;
 
     if (state.ctp[0].isEqual(new Pitch(0, 0))) {
         document.getElementById("ctp")!.innerHTML =
-            `<div class="p-6 my-18 border-orange-100 border-2 text-orange-100 text-xl">No solutions found :(</div>`;
+            `<div class="p-6 my-18 border-stone-700 dark:border-orange-100 border-2 text-stone-700 dark:text-orange-100 text-xl">No solutions found :(</div>`;
+        drawCompound();
         return;
     }
 

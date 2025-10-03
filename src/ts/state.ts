@@ -1,10 +1,11 @@
-import type { Pitch } from "meantonal";
+import { Interval, LilyPond, Pitch } from "meantonal";
 import { drawCantus } from "./scoreCantus.js";
 import { VerovioToolkit } from "verovio/esm";
 import { Cantussy } from "./cantussy.js";
 
 export const state = {
     cantus: [] as Pitch[],
+    cantusString: "",
     ctp: [] as Pitch[],
     repositionedCantus: [] as Pitch[],
     upperVoice: [] as Pitch[],
@@ -16,7 +17,9 @@ export const state = {
     modeLabel: document.getElementById("mode-label")!,
     lenLabel: document.getElementById("len-label")!,
     solutionsLabel: document.getElementById("solutions-label")!,
+    cantusInput: document.getElementById("cantus-string")! as HTMLInputElement,
     solfa: false,
+    edit: false,
     currentSection: 2,
     verovio: undefined as unknown as VerovioToolkit,
     cantussy: undefined as unknown as Cantussy,
@@ -78,6 +81,48 @@ export function toggleSolfa() {
     else document.documentElement.style.setProperty("--box-visibility", "hidden");
     hand?.classList.toggle("hidden");
     fist?.classList.toggle("hidden");
+}
+
+export function toggleEdit() {
+    if (state.edit) state.edit = false;
+    else state.edit = true
+
+    document.getElementById("cantus")?.classList.toggle("hidden")
+    document.getElementById("edit-input")?.classList.toggle("hidden")
+}
+
+export function confirmEdit() {
+    state.cantusString =
+        state.cantusInput.value;
+    state.cantus = cantusFromString();
+    state.actualMode = state.cantus[0].chroma + 1;
+    state.actualLength = state.cantus.length;
+    state.tonicLetter = "FCGDAE"[state.actualMode];
+    state.cantussy.updateCantus();
+    drawCantus(true);
+    toggleEdit();
+}
+
+function cantusFromString() {
+    const pitchStrings = state.cantusString.split(" ");
+    let pitches = pitchStrings.map(s => LilyPond.toPitch(s));
+
+    pitches[0] = Pitch.fromChroma(pitches[0].chroma, 4);
+    for (let i = 1; i < pitches.length; i++) {
+        let p = Pitch.fromChroma(pitches[i].chroma, 0);
+        let steps = Math.abs(p.stepsTo(pitches[i - 1]))
+        while (steps > 3) {
+            p = p.transposeReal(new Interval(5, 2));
+            steps = Math.abs(p.stepsTo(pitches[i - 1]))
+        }
+        const raise = pitchStrings[i].split("").filter(x => x === "'").length
+        p = p.transposeReal(new Interval(5 * raise, 2 * raise));
+        const lower = pitchStrings[i].split("").filter(x => x === ",").length
+        p = p.transposeReal(new Interval(-5 * lower, -2 * lower));
+        pitches[i] = p;
+    }
+
+    return pitches;
 }
 
 export function showSection(next: number) {

@@ -5,6 +5,8 @@ import {
     handleDecrementLength,
     handleIncrementLength,
     toggleSolfa,
+    toggleEdit,
+    confirmEdit,
     showSection,
     updateTheme,
 } from "./ts/state.js";
@@ -43,17 +45,21 @@ document
 
 document
     .getElementById("randomise-cantus")!
-    .addEventListener("click", drawCantus);
+    .addEventListener("click", () => drawCantus());
 
 document.getElementById("play-cantus")!.addEventListener("click", playCantus);
 
 document.getElementById("solfa")!.addEventListener("click", toggleSolfa);
 
+document.getElementById("edit")!.addEventListener("click", toggleEdit);
+document.getElementById("cancel-edit")!.addEventListener("click", toggleEdit);
+document.getElementById("confirm-edit")!.addEventListener("click", confirmEdit);
+
 // Counterpoint controls
 
 document
     .getElementById("randomise-both")!
-    .addEventListener("click", drawCantus);
+    .addEventListener("click", () => drawCantus());
 document.getElementById("randomise-ctp")!.addEventListener("click", drawCtp);
 
 document.getElementById("play-ctp-top")!.addEventListener("click", playCtpTop);
@@ -132,9 +138,9 @@ state.verovio = new VerovioToolkit(VerovioModule);
 
 showSection(1);
 showSection(1);
-setTuning(31);
 setWaveform("triangle");
 drawCantus();
+setTuning(31);
 
 if (localStorage.theme === "light") {
     document

@@ -22,13 +22,16 @@ Pitch result_ctp[32] = {0};
 int solutions = 0;
 
 EMSCRIPTEN_KEEPALIVE
+void set_cantus(int index, int w, int h) { mt_cantus[index] = (Pitch){w, h}; }
+
+EMSCRIPTEN_KEEPALIVE
 Pitch *get_ctp() { return result_ctp; }
 
 EMSCRIPTEN_KEEPALIVE
 int get_solutions() { return solutions; }
 
 EMSCRIPTEN_KEEPALIVE
-void generate_ctp(void) {
+void generate_ctp(bool from_string) {
     solutions = 0;
     for (int i = 0; i < BARS; i++) {
         result_ctp[i] = (Pitch){0, 0};
@@ -43,9 +46,10 @@ void generate_ctp(void) {
     context = context_from_chroma(MODE - 1, MODE);
     tonic = pitch_from_chroma(MODE - 1, 4);
 
-    for (int i = 0; i < BARS; i++) {
-        mt_cantus[i] = transpose_diatonic(tonic, cantus[i], context);
-    }
+    if (!from_string)
+        for (int i = 0; i < BARS; i++) {
+            mt_cantus[i] = transpose_diatonic(tonic, cantus[i], context);
+        }
 
     for (int i = 0; i + 1 < BARS; i++) {
         cantus_motions[i] = interval_between(mt_cantus[i], mt_cantus[i + 1]);

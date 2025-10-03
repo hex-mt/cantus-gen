@@ -35,6 +35,8 @@ typedef struct {
 } CantusState;
 
 void initialise_env(void);
+void set_bars(int length);
+void set_mode(int mode);
 int generate_cantus(int mode, int length);
 
 void try_note(CantusState range);

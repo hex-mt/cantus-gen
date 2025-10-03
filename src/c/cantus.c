@@ -19,6 +19,12 @@ void initialise_env(void) {
 }
 
 EMSCRIPTEN_KEEPALIVE
+void set_bars(int length) { BARS = length; }
+
+EMSCRIPTEN_KEEPALIVE
+void set_mode(int mode) { MODE = mode; }
+
+EMSCRIPTEN_KEEPALIVE
 int generate_cantus(int mode, int length) {
     if (mode < 0 || mode > 5)
         return 1;

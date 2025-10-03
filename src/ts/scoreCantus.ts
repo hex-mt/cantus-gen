@@ -3,7 +3,7 @@ import { state } from "./state.js";
 import { audio } from "./audio.js";
 import { drawCtp } from "./scoreSpecies.js";
 
-export async function drawCantus() {
+export async function drawCantus(fromString: boolean = false) {
     audio.stop();
 
     let mei = `<?xml version="1.0" encoding="UTF-8"?>
@@ -30,20 +30,22 @@ export async function drawCantus() {
               <staff n="1">
                 <layer n="1">`;
 
-    state.actualMode =
-        state.mode != 6 ? state.mode : Math.floor(Math.random() * 6);
-    state.tonicLetter = "FCGDAEB"[state.actualMode];
-    state.actualLength =
-        state.length != 8 ? state.length + 9 : Math.floor(Math.random() * 8) + 9;
+    if (!fromString) {
+        state.actualMode =
+            state.mode != 6 ? state.mode : Math.floor(Math.random() * 6);
+        state.tonicLetter = "FCGDAEB"[state.actualMode];
+        state.actualLength =
+            state.length != 8 ? state.length + 9 : Math.floor(Math.random() * 8) + 9;
 
-    state.cantus = state.cantussy.generateCantus();
+        state.cantus = state.cantussy.generateCantus();
+    }
 
     state.repositionedCantus =
         state.cantus.filter((x) => SPN.toPitch("A3").stepsTo(x) < 0).length == 0
             ? state.cantus
             : state.cantus.map((x) => x.transposeReal(new Interval(5, 2)));
 
-    const solfa = getSolfa(state.cantus);
+    const solfa = getSolfa();
 
     state.repositionedCantus.forEach((p, i) => {
         mei += `<note pname="${p.letter.toLowerCase()}" oct="${p.octave}" dur="1">`;
@@ -74,11 +76,14 @@ export async function drawCantus() {
 
     document.getElementById("cantus")!.innerHTML = svg;
 
-    drawCtp();
+    drawCtp(fromString);
+
+    state.cantusString = cantusToString(state.cantus);
+    state.cantusInput.value = state.cantusString;
 }
 
-function getSolfa(cantus: Pitch[]) {
-    let chromas = cantus.map((x) => x.chroma + 1);
+function getSolfa() {
+    let chromas = state.cantus.map((x) => x.chroma + 1);
     let current = 0;
     let first = chromas.findIndex((x) => x == 0 || x == 6);
     if (first !== -1) current = chromas[first];
@@ -91,4 +96,17 @@ function getSolfa(cantus: Pitch[]) {
     }
 
     return result;
+}
+
+function cantusToString(cantus: Pitch[]) {
+    return cantus.map((p, i) => {
+        let result = p.letter.toLowerCase();
+        if (i) {
+            let steps = cantus[i - 1].stepsTo(p);
+            steps = steps < 0 ? steps - 3 : steps + 3;
+            let octave = Math.trunc(steps / 7);
+            result += octave < 0 ? ",".repeat(-octave) : "'".repeat(octave);
+        }
+        return result;
+    }).reduce((a, c) => a += " " + c);
 }
