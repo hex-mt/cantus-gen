@@ -5,7 +5,7 @@
 #define LIMIT 32
 #define STEP_LIMIT 5
 #define IMP_LIMIT 3
-#define TIE_LIMIT (double)(BARS - 3.0) / 4.0
+#define TIE_LIMIT (BARS - 3) / 4
 
 typedef struct {
     Pitch top;
@@ -219,7 +219,7 @@ static inline bool ctp_overemphasised_tone(CtpState *state, Pitch this_note) {
     for (int i = 0; i < state->bar; i++)
         if (pitches_equal(mt_ctp[i], this_note))
             count++;
-    if (count > 2)
+    if (count > 3)
         return true;
     return false;
 }

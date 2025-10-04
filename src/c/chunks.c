@@ -66,16 +66,10 @@ void generate_chunks(void) {
                     (stepspan(consonances[j]) < 0 &&
                      stepspan(consonances[k]) > 0) ||
                     // no consecutive perfects
-                    (stepspan(consonances[j]) == 0 &&
-                     stepspan(consonances[k]) == 0) ||
-                    (stepspan(consonances[j]) == 4 &&
-                     stepspan(consonances[k]) == 4) ||
-                    (stepspan(consonances[j]) == 7 &&
-                     stepspan(consonances[k]) == 7) ||
-                    (stepspan(consonances[j]) == -4 &&
-                     stepspan(consonances[k]) == -4) ||
-                    (stepspan(consonances[j]) == -7 &&
-                     stepspan(consonances[k]) == -7))
+                    (stepspan(consonances[j]) == stepspan(consonances[k]) &&
+                     (abs(stepspan(consonances[j])) == 0 ||
+                      abs(stepspan(consonances[j])) == 4 ||
+                      abs(stepspan(consonances[j])) == 7)))
                     continue;
                 Interval ctp_motion = intervals_subtract(
                     intervals_add(consonances[k], motions[i]), consonances[j]);
